@@ -116,7 +116,7 @@ public class AgendaDTO extends BaseObject {
     updateStatus = update m_article set is_public=${status} where a_id=#${id}#;
        
     queryCountByTitle = select count(*) from m_article a left join article_type t on a.type_id=t.id where 1=1
-                     <#if title??>
+                     &lt;#if title??&gt;
                        and a.name like #%${title}%#
                     &lt;/#if&gt;;
 </pre>
