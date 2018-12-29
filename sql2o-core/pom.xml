@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>easy-sql</artifactId>
+        <groupId>com.github.fishlikewater</groupId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>sql2o-core</artifactId>
+
+    <name>sql2o-core</name>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <slf4j-api.version>1.7.25</slf4j-api.version>
+        <sqlite.version>3.21.0</sqlite.version>
+        <mysql.version>5.1.38</mysql.version>
+        <junit.version>4.12</junit.version>
+        <hikaricp.version>2.4.1</hikaricp.version>
+        <druid.version>1.0.24</druid.version>
+        <slf4j-log4j12.version>1.7.21</slf4j-log4j12.version>
+        <freemark-version>2.3.26-incubating</freemark-version>
+        <sql2o-version>1.6.0</sql2o-version>
+        <lombok-version>1.16.18</lombok-version>
+        <guava-version>23.4-jre</guava-version>
+        <common-io-version>2.0</common-io-version>
+        <commons-lang-version>2.6</commons-lang-version>
+        <hutool-version>4.3.1</hutool-version>
+    </properties>
+
+    <dependencies>
+        <!--sql2o驱动-->
+        <dependency>
+            <groupId>org.sql2o</groupId>
+            <artifactId>sql2o</artifactId>
+            <version>${sql2o-version}</version>
+        </dependency>
+        <!-- lombok -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>${lombok-version}</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${slf4j-api.version}</version>
+        </dependency>
+        <!--sqlite数据库-->
+        <dependency>
+            <groupId>org.xerial</groupId>
+            <artifactId>sqlite-jdbc</artifactId>
+            <version>${sqlite.version}</version>
+            <optional>true</optional>
+        </dependency>
+        <!--读取模板文件-->
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>${common-io-version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <!--解析模板-->
+        <dependency>
+            <groupId>org.freemarker</groupId>
+            <artifactId>freemarker</artifactId>
+            <version>${freemark-version}</version>
+        </dependency>
+        <!--主要使用String等工具类-->
+        <dependency>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
+            <version>${commons-lang-version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>${mysql.version}</version>
+            <optional>true</optional>
+        </dependency>
+        <!--工具包-->
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-core</artifactId>
+            <version>${hutool-version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>${guava-version}</version>
+        </dependency>
+
+    </dependencies>
+</project>
