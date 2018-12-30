@@ -11,8 +11,9 @@
 
 ### 准备工作
 
-1.首先将数据源注入    
-＄　1.1 javaConfig方式注入数据源
+1.首先将数据源注入
+1.1 javaConfig方式注入数据源
+
 <pre>
     @Bean
     public Sql2o sql2o(){
@@ -20,13 +21,15 @@
         return BaseUtils.open(dataSource());
     }
 </pre>
-＄　1.２ 其他方式注入　　　　　　　　　
+
+1.２ 其他方式注入　　　　　　　　　
 >　这里留有几种方式初始化，只用在使用前调用这几个方法中一个就可以了
 <pre>
     BaseUtils．open(String url, String user, String password);
     BaseUtils．open(DataSource dataSource);
     BaseUtils．open(Sql2o sql2o_);
 </pre>
+
 2.编写一个DAO 使其继承BaseDAO,在类上使用@Table注解，标明其对应的数据库表，以及主键和映射实体类
 例如:     
 <pre>
@@ -193,6 +196,9 @@ decimal(10,2)，defaultValue为默认值，如果类型为Types.BOOLEAN时，默
                      
 > 2018-03-13 添加多数据源支持
 
-支持两种多数据的方式，1：使用@DS(value="dateSouceName“) 该方式使用了spring的aop 只支持spring。
-2: 代码层面支持多只读数据源及多写数据源，需开启BaseUtils.getBuilder().setOPenReadyAndWrite(true),
-使用public static void openOnlyReady(DataSource... dataSource)与public static void openWrite(DataSource... dataSource)分别注入数据源，在进行数据库操作时，自动通过sql语句判断读写，随机选择读或写的数据源。                        
+代码层面支持多只读数据源及多写数据源，需开启BaseUtils.getBuilder().setOPenReadyAndWrite(true),
+使用public static void openOnlyReady(DataSource... dataSource)与public static void openWrite(DataSource... dataSource)分别注入数据源，在进行数据库操作时，自动通过sql语句判断读写，随机选择读或写的数据源。          
+
+> 2018-12-30 添加多数据源支持  
+
+配置spring boot 注解自动配置         
