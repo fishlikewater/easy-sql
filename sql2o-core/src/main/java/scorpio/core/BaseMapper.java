@@ -41,7 +41,7 @@ import java.util.regex.Pattern;
  * 该类主要扩展操作(sql与代码分离，以.sqlmap为后缀的文件来存储sql语句，每句sql以K-V的方式)
  */
 @Slf4j
-public class BaseDAO<T extends BaseObject> implements IBaseDAO, Serializable {
+public class BaseMapper<T extends BaseObject> implements IBaseDAO, Serializable {
 
     /**
      * 存储当前pojo 对应.sqlmap文件中的sql语句

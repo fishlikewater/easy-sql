@@ -6,7 +6,7 @@ import scorpio.core.BaseObject;
 
 
 @Builder
-public class ResourcesDTO extends BaseObject {
+public class ResourcesDTO implements BaseObject {
 
     private Integer id;
 

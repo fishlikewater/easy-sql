@@ -32,7 +32,7 @@ public class JdbcTest {
 
     @Test
     public void insert() {
-        TestDAO testDAO = new TestDAO();
+        TestMapper testDAO = new TestMapper();
         TestDTO dto = new TestDTO();
         dto.setaId("1");
         dto.setName("李四");
@@ -41,7 +41,7 @@ public class JdbcTest {
 
     @Test
     public void insertForMap() {
-        TestDAO testDAO = new TestDAO();
+        TestMapper testDAO = new TestMapper();
         Map map = new HashMap<>();
         map.put("aId", "6");
         map.put("name", "玩物");
@@ -50,7 +50,7 @@ public class JdbcTest {
 
     @Test
     public void insertNoId() {
-        TestDAO testDAO = new TestDAO();
+        TestMapper testDAO = new TestMapper();
         TestDTO dto = new TestDTO();
         dto.setName("李四");
         testDAO.create(dto, "7");
@@ -58,7 +58,7 @@ public class JdbcTest {
 
     @Test
     public void insertBath() {
-        TestDAO testDAO = new TestDAO();
+        TestMapper testDAO = new TestMapper();
         TestDTO dto1 = new TestDTO();
         dto1.setaId("8");
         dto1.setName("李四");
@@ -72,7 +72,7 @@ public class JdbcTest {
     //mysql才支持
     @Test
     public void insert4Batch() {
-        TestDAO testDAO = new TestDAO();
+        TestMapper testDAO = new TestMapper();
         TestDTO dto1 = new TestDTO();
         dto1.setaId("10");
         dto1.setName("李四");
@@ -87,7 +87,7 @@ public class JdbcTest {
 
     @Test
     public void createAndId() {
-        TestDAO testDAO = new TestDAO();
+        TestMapper testDAO = new TestMapper();
         TestDTO dto1 = new TestDTO();
         dto1.setName("李四");
         testDAO.createAndId(dto1);
@@ -95,13 +95,13 @@ public class JdbcTest {
 
     @Test
     public void remove() {
-        TestDAO testDAO = new TestDAO();
+        TestMapper testDAO = new TestMapper();
         testDAO.remove("6");
     }
 
     @Test
     public void removeBath() {
-        TestDAO testDAO = new TestDAO();
+        TestMapper testDAO = new TestMapper();
         String[] ids = {"2", "3"};
         Integer[] idss = {2, 3};
         testDAO.remove(ids);
@@ -109,7 +109,7 @@ public class JdbcTest {
 
     @Test
     public void removeByObj() {
-        TestDAO testDAO = new TestDAO();
+        TestMapper testDAO = new TestMapper();
         TestDTO dto1 = new TestDTO();
         //dto1.setId("2");
         dto1.setName("李四");
@@ -119,7 +119,7 @@ public class JdbcTest {
 
     @Test
     public void removeByMap() {
-        TestDAO testDAO = new TestDAO();
+        TestMapper testDAO = new TestMapper();
         Map<String, Object> map = new HashMap<>();
         map.put("id", "5");
         map.put("name", "玩物");
@@ -128,20 +128,20 @@ public class JdbcTest {
 
     @Test
     public void removeByCriteria() {
-        TestDAO testDAO = new TestDAO();
+        TestMapper testDAO = new TestMapper();
         int i = testDAO.removeByCriteria("name='李四'");
         System.out.println(i);
     }
 
     @Test
     public void removeAll() {
-        TestDAO testDAO = new TestDAO();
+        TestMapper testDAO = new TestMapper();
         testDAO.removeAll();
     }
 
     @Test
     public void update() {
-        TestDAO testDAO = new TestDAO();
+        TestMapper testDAO = new TestMapper();
         TestDTO dto1 = new TestDTO();
         dto1.setaId("6");
         dto1.setName("张三");
@@ -150,7 +150,7 @@ public class JdbcTest {
 
     @Test
     public void updateForMap() {
-        TestDAO testDAO = new TestDAO();
+        TestMapper testDAO = new TestMapper();
         Map<String, Object> map = new HashMap<>();
         map.put("aId", "1");
         map.put("name", "玩物");
@@ -159,21 +159,21 @@ public class JdbcTest {
 
     @Test
     public void updateNotIgnoreNull() {
-        TestDAO testDAO = new TestDAO();
+        TestMapper testDAO = new TestMapper();
         TestDTO dto1 = new TestDTO();
         testDAO.updateNotIgnoreNull(dto1);
     }
 
     @Test
     public void findById() {
-        TestDAO testDAO = new TestDAO();
+        TestMapper testDAO = new TestMapper();
         Integer id = 1;
         System.out.println(testDAO.findById(id));
     }
 
     @Test
     public void findByIds() {
-        TestDAO testDAO = new TestDAO();
+        TestMapper testDAO = new TestMapper();
         List list = new ArrayList();
         list.add(1);
         list.add(6);
@@ -183,7 +183,7 @@ public class JdbcTest {
 
     @Test
     public void queryForBaseObject() {
-        TestDAO testDAO = new TestDAO();
+        TestMapper testDAO = new TestMapper();
         List list = new ArrayList();
         TestDTO dto1 = new TestDTO();
         dto1.setName("张三");
@@ -192,13 +192,13 @@ public class JdbcTest {
 
     @Test
     public void queryForBaseObjectByCriteria() {
-        TestDAO testDAO = new TestDAO();
+        TestMapper testDAO = new TestMapper();
         System.out.println(testDAO.queryForBaseObjectByCriteria("name='玩物'"));
     }
 
     @Test
     public void query() {
-        TestDAO testDAO = new TestDAO();
+        TestMapper testDAO = new TestMapper();
         List list = new ArrayList();
         TestDTO dto1 = new TestDTO();
         dto1.setName("玩物");
@@ -207,31 +207,31 @@ public class JdbcTest {
 
     @Test
     public void queryCount() {
-        TestDAO testDAO = new TestDAO();
+        TestMapper testDAO = new TestMapper();
         System.out.println(testDAO.queryCount("name='张三'"));
     }
 
     @Test
     public void queryCount2() {
-        TestDAO testDAO = new TestDAO();
+        TestMapper testDAO = new TestMapper();
         System.out.println(testDAO.queryCount());
     }
 
     @Test
     public void queryCountByTpl() {
-        TestDAO testDAO = new TestDAO();
+        TestMapper testDAO = new TestMapper();
         System.out.println(testDAO.queryCountByTpl("queryCount", null));
     }
 
     @Test
     public void queryForListByBaseObject() {
-        TestDAO testDAO = new TestDAO();
+        TestMapper testDAO = new TestMapper();
         System.out.println(testDAO.queryForListByBaseObject("query", null));
     }
 
     @Test
     public void queryForObject() {
-        TestDAO testDAO = new TestDAO();
+        TestMapper testDAO = new TestMapper();
         TestDTO dto1 = new TestDTO();
         dto1.setName("玩物");
         System.out.println(testDAO.queryForObject("query", dto1, TestDTO.class));
@@ -239,14 +239,14 @@ public class JdbcTest {
 
     @Test
     public void queryAll() {
-        TestDAO testDAO = new TestDAO();
+        TestMapper testDAO = new TestMapper();
         List<TestDTO> query = testDAO.query();
         System.out.println(query);
     }
 
     @Test
     public void queryAll2() {
-        ResourcesDAO testDAO = new ResourcesDAO();
+        ResourcesMapper testDAO = new ResourcesMapper();
         List<ResourcesDTO> query = testDAO.query();
         // List<ResourcesDTO> resourcesDTOS = BaseUtils.sql2o.open().createQuery("select * from resources").executeAndFetch(ResourcesDTO.class);
         System.out.println(query.toString());
@@ -259,7 +259,7 @@ public class JdbcTest {
 
     @Test
     public void testPort() {
-        TestDAO testDAO = new TestDAO();
+        TestMapper testDAO = new TestMapper();
         BaseUtils.atomic(() -> {
             return testDAO.findById(6);
         });

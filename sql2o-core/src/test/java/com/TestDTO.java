@@ -8,7 +8,7 @@ import scorpio.core.Generator;
 
 import java.sql.Types;
 
-public class TestDTO extends BaseObject{
+public class TestDTO implements BaseObject{
     @IdGenerator(value = Generator.DEFINED, idclass = MyIdFactory.class)
     private String aId;
 

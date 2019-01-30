@@ -1,8 +1,8 @@
 package com;
 
 import scorpio.annotation.Table;
-import scorpio.core.BaseDAO;
+import scorpio.core.BaseMapper;
 
 @Table(pojo = ResourcesDTO.class ,table = "resources")
-public class ResourcesDAO extends BaseDAO {
+public class ResourcesMapper extends BaseMapper {
 }

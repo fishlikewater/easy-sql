@@ -1,4 +1,4 @@
 package scorpio.core;
 
-public class BaseObject {
+public interface BaseObject {
 }

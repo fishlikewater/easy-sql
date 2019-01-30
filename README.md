@@ -35,13 +35,13 @@
 例如:     
 <pre>
     @Table(pojo = AgendaDTO.class,table = "m_article", pk = "a_id")
-    public class AgendaDAO extends BaseDAO {
+    public class AgendaDAO extends BaseMapper {
     
     }
 </pre>
 这里的主键pk也可以放在映射的实体中，使用@Id标注:
-<pre>
-public class AgendaDTO extends BaseObject {
+```java
+public class AgendaDTO implements BaseObject {
 
     @Transient
     private static final long serialVersionUID = 1L;
@@ -55,14 +55,15 @@ public class AgendaDTO extends BaseObject {
     private String url;
     private Boolean editable;
     private String className;//class
-    private String backgroundColor;/
+    private String backgroundColor;
     private String borderColor;
     private String textColor;
     private String userId;
     private String isFinish;
     private String createTime;
 }
-</pre>
+```
+
 实体映射类需要继承BaseObject, 这里的 @Transient表示不是映射字段(主键默认字段名为idt)
 
 ### api调用
@@ -72,13 +73,13 @@ public class AgendaDTO extends BaseObject {
 插入数据到数据库
 <pre>
     AgendaDAO agendaDAO = new AgendaDAO();
-    AgendaDTO agendaDTO = new AgendaDTO();
-    /** 设置属性省略 */
-    articleDAO.create(agendaDTO);/** 设置有主键,或者主键自增 */
-    articleDAO.createAndId(agendaDTO);/** 根据配置策略生成主键,目前默认为uuid */
-    
-    AgendaDTO[] agendaDTOs = new AgendaDTO[];
-    articleDAO.createAndId(agendaDTOs);/** 批量创建 */
+      AgendaDTO agendaDTO = new AgendaDTO();
+      /** 设置属性省略 */
+      articleDAO.create(agendaDTO);/** 设置有主键,或者主键自增 */
+      articleDAO.createAndId(agendaDTO);/** 根据配置策略生成主键,目前默认为uuid */
+      
+      AgendaDTO[] agendaDTOs = new AgendaDTO[];
+      articleDAO.createAndId(agendaDTOs);/** 批量创建 */
 </pre>
 > 还有其他创建方式就不列出来了       
 
@@ -202,4 +203,4 @@ decimal(10,2)，defaultValue为默认值，如果类型为Types.BOOLEAN时，默
 
 > 2018-12-30 添加多数据源支持  
 
-配置spring boot 注解自动配置         
+配置spring boot 注解自动配置 启动类上添加@EnableSql2o 注解(spring 容器中需注入数据源)         
