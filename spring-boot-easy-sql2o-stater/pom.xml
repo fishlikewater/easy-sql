@@ -5,18 +5,18 @@
     <parent>
         <artifactId>easy-sql</artifactId>
         <groupId>com.github.fishlikewater</groupId>
-        <version>1.0-SNAPSHOT</version>
+        <version>1.0-RELEASE</version>
     </parent>
     <groupId>com.github.fishlikewater</groupId>
     <artifactId>spring-boot-easy-sql2o-stater</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.0.1-RELEASE</version>
     <name>spring-boot-easy-sql2o-stater</name>
     <description>spring-boot-easy-sql2o-stater</description>
 
     <properties>
         <java.version>1.8</java.version>
         <spring.boot.version>2.1.1.RELEASE</spring.boot.version>
-        <sql2o-core.version>1.0-SNAPSHOT</sql2o-core.version>
+        <sql2o.core.version>1.0-RELEASE</sql2o.core.version>
     </properties>
 
     <dependencies>
@@ -34,7 +34,7 @@
         <dependency>
             <groupId>com.github.fishlikewater</groupId>
             <artifactId>sql2o-core</artifactId>
-            <version>${sql2o-core.version}</version>
+            <version>${sql2o.core.version}</version>
         </dependency>
 
         <dependency>
