@@ -64,7 +64,7 @@ public class AgendaDTO implements BaseObject {
 }
 ```
 
-实体映射类需要继承BaseObject, 这里的 @Transient表示不是映射字段(主键默认字段名为idt)
+实体映射类需要实现BaseObject, 这里的 @Transient表示不是映射字段(主键默认字段名为idt)
 
 ### api调用
 
