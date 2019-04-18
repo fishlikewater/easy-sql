@@ -5,6 +5,7 @@ package com;
 import org.junit.Before;
 import org.junit.Test;
 import scorpio.BaseUtils;
+import scorpio.core.QueryModel;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -246,10 +247,26 @@ public class JdbcTest {
 
     @Test
     public void queryAll2() {
+        long t1 = System.currentTimeMillis();
         ResourcesMapper testDAO = new ResourcesMapper();
         List<ResourcesDTO> query = testDAO.query();
         // List<ResourcesDTO> resourcesDTOS = BaseUtils.sql2o.open().createQuery("select * from resources").executeAndFetch(ResourcesDTO.class);
+        long t2 = System.currentTimeMillis();
+        System.out.println(t2-t1);
         System.out.println(query.toString());
+    }
+
+    @Test
+    public void testModel(){
+        Resources resources = new Resources();
+        long t1 = System.currentTimeMillis();
+        Resources queryCount = resources.object(new QueryModel().tpl("queryCount", null));
+        System.out.println(queryCount);
+        //resources.update(new UpdateModel().set("res_url", "https://baidu.com"));
+        List<Map<String, Object>> list = resources.maps(new QueryModel().equal("id", "1"));
+        long t2 = System.currentTimeMillis();
+        System.out.println(t2-t1);
+        System.out.println(list);
     }
 
     @Test

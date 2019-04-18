@@ -2,7 +2,6 @@ package scorpio.core;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.RandomUtils;
 import org.sql2o.Connection;
@@ -12,10 +11,7 @@ import scorpio.BaseUtils;
 import scorpio.annotation.*;
 import scorpio.exception.BaseRuntimeException;
 import scorpio.migrate.Execute;
-import scorpio.utils.BeanUtils;
-import scorpio.utils.NameUtils;
-import scorpio.utils.TableInfo;
-import scorpio.utils.TableUtils;
+import scorpio.utils.*;
 
 import java.io.*;
 import java.lang.reflect.Field;
@@ -31,8 +27,6 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * @author zhangx
@@ -41,7 +35,7 @@ import java.util.regex.Pattern;
  * 该类主要扩展操作(sql与代码分离，以.sqlmap为后缀的文件来存储sql语句，每句sql以K-V的方式)
  */
 @Slf4j
-public class BaseMapper<T extends BaseObject> implements IBaseDAO, Serializable {
+public abstract class BaseMapper<T extends BaseObject> implements IBaseDAO, Serializable {
 
     /**
      * 存储当前pojo 对应.sqlmap文件中的sql语句
@@ -70,6 +64,10 @@ public class BaseMapper<T extends BaseObject> implements IBaseDAO, Serializable 
 
     private AtomicInteger isInit = new AtomicInteger(1);
 
+    public BaseMapper(){
+        assetInit();
+    }
+
     /**
      * 通过对象创建数据
      *
@@ -78,7 +76,7 @@ public class BaseMapper<T extends BaseObject> implements IBaseDAO, Serializable 
      */
     @Override
     public Object create(BaseObject dto) {
-        assetInit();
+        //assetInit();
         Map<String, Object> paramMap = new HashMap<String, Object>();
         getNotEmptyColumn(dto);
         paramMap.put("tbl", tableInfo);
@@ -100,7 +98,7 @@ public class BaseMapper<T extends BaseObject> implements IBaseDAO, Serializable 
      */
     @Override
     public Object create(Map<String, Object> map) {
-        assetInit();
+        //assetInit();
         BaseObject dto = toConvertion(map);
         return create(dto);
     }
@@ -114,7 +112,7 @@ public class BaseMapper<T extends BaseObject> implements IBaseDAO, Serializable 
     @Override
     public void create(BaseObject dto, String id) {
         /**先获取主键列 */
-        assetInit();
+        //assetInit();
         if (StringUtils.isBlank(id) && tableInfo.getGenerator() != Generator.AUTO) {
             log.error("Primary key cannot be empty");
             throw new BaseRuntimeException();
@@ -141,7 +139,7 @@ public class BaseMapper<T extends BaseObject> implements IBaseDAO, Serializable 
      */
     @Override
     public void create(BaseObject[] dtos) {
-        assetInit();
+        //assetInit();
         Map<String, Object> paramMap = new HashMap<String, Object>();
         tableInfo.setColumnsWithNotEmptyValue(tableInfo.getDtoAllValueName());
         tableInfo.setNotEmptyDBColumnList(tableInfo.getDbColumnList());
@@ -166,7 +164,7 @@ public class BaseMapper<T extends BaseObject> implements IBaseDAO, Serializable 
      * @param dtos
      */
     public void create4Batch(List<? extends BaseObject> dtos) {
-        assetInit();
+        //assetInit();
         Map<String, Object> paramMap = new HashMap<String, Object>();
         List dbColumnList = tableInfo.getDbColumnList();
         if (tableInfo.getGenerator() == Generator.AUTO) {
@@ -193,7 +191,7 @@ public class BaseMapper<T extends BaseObject> implements IBaseDAO, Serializable 
      */
     @Override
     public String createAndId(BaseObject dto) {
-        assetInit();
+        //assetInit();
         String id = String.valueOf(IdFactory.getId(tableInfo.getGenerator(), tableInfo.getIdDefined()));
         create(dto, id);
         return id;
@@ -216,7 +214,7 @@ public class BaseMapper<T extends BaseObject> implements IBaseDAO, Serializable 
 
     @Override
     public void removeById(Object id) {
-        assetInit();
+        //assetInit();
         Map<String, Object> paramMap = new HashMap<String, Object>();
         paramMap.put("tbl", tableInfo);
         String template = parseSqlTemplate("removeById", paramMap);
@@ -249,7 +247,7 @@ public class BaseMapper<T extends BaseObject> implements IBaseDAO, Serializable 
      * @param ids
      */
     private void removeByIds(Object[] ids) {
-        assetInit();
+        //assetInit();
         Map<String, Object> paramMap = new HashMap<String, Object>();
         paramMap.put("tbl", tableInfo);
         String template = parseSqlTemplate("removeById", paramMap);
@@ -274,7 +272,7 @@ public class BaseMapper<T extends BaseObject> implements IBaseDAO, Serializable 
      */
     @Override
     public int removeByCondition(BaseObject dto) {
-        assetInit();
+        //assetInit();
         Map<String, Object> paramMap = new HashMap<String, Object>();
         tableInfo.setMapperList(TableUtils.getMapper(tableInfo.getPojoClass(), dto));
         paramMap.put("tbl", tableInfo);
@@ -346,7 +344,7 @@ public class BaseMapper<T extends BaseObject> implements IBaseDAO, Serializable 
      */
     @Override
     public int removeByCondition(Map<String, Object> map) {
-        assetInit();
+        //assetInit();
         BaseObject baseObject = toConvertion(map);
         return removeByCondition(baseObject);
     }
@@ -361,7 +359,7 @@ public class BaseMapper<T extends BaseObject> implements IBaseDAO, Serializable 
             log.error("The deletion condition is not empty, which removes all data, and if you need to delete all the data, use the removeAll method");
             throw new BaseRuntimeException();
         }
-        assetInit();
+        //assetInit();
         String sqlTemplate = "delete from " + tableInfo.getTblName() + " where " + criteria + "";
         Connection conn = getConn(sqlTemplate);
         try {
@@ -376,7 +374,7 @@ public class BaseMapper<T extends BaseObject> implements IBaseDAO, Serializable 
      */
     @Override
     public int removeAll() {
-        assetInit();
+        //assetInit();
         String sqlTemplate = "delete from " + tableInfo.getTblName() + "";
         Connection conn = getConn(sqlTemplate);
         try {
@@ -394,7 +392,7 @@ public class BaseMapper<T extends BaseObject> implements IBaseDAO, Serializable 
      */
     @Override
     public int update(BaseObject dto) {
-        assetInit();
+        //assetInit();
         String camelName = NameUtils.getCamelName(tableInfo.getPkName());
         try {
             Field field = tableInfo.getPojoClass().getDeclaredField(camelName);
@@ -434,14 +432,14 @@ public class BaseMapper<T extends BaseObject> implements IBaseDAO, Serializable 
 
     @Override
     public int update(Map<String, Object> map) {
-        assetInit();
+        //assetInit();
         BaseObject baseObject = toConvertion(map);
         return update(baseObject);
     }
 
     @Override
     public int updateNotIgnoreNull(BaseObject dto) {
-        assetInit();
+        //assetInit();
         String camelName = NameUtils.getCamelName(tableInfo.getPkName());
         try {
             Field field = tableInfo.getPojoClass().getDeclaredField(camelName);
@@ -475,7 +473,7 @@ public class BaseMapper<T extends BaseObject> implements IBaseDAO, Serializable 
 
     @Override
     public int updateByCondtion(BaseObject data, BaseObject condition) {
-        assetInit();
+        //assetInit();
         String camelName = NameUtils.getCamelName(tableInfo.getPkName());
         Map<String, Object> paramMap = new HashMap<String, Object>();
         tableInfo.setMapperList(tableInfo.getMapperForAllList());
@@ -493,13 +491,13 @@ public class BaseMapper<T extends BaseObject> implements IBaseDAO, Serializable 
 
     @Override
     public int updateIgnoreEmpty(BaseObject dto) {
-        assetInit();
+        //assetInit();
         return update(dto);
     }
 
     @Override
     public int updateByConditionIgnoreEmpty(BaseObject data, BaseObject condition) {
-        assetInit();
+        //assetInit();
         String camelName = NameUtils.getCamelName(tableInfo.getPkName());
         Map<String, Object> paramMap = new HashMap<String, Object>();
         tableInfo.setMapperList(TableUtils.getMapper(tableInfo.getPojoClass(), data));
@@ -519,7 +517,7 @@ public class BaseMapper<T extends BaseObject> implements IBaseDAO, Serializable 
 
     @Override
     public T findById(Object id) {
-        assetInit();
+        //assetInit();
         List<Object> list = new ArrayList<>();
         list.add(id);
         Map<String, Object> paramMap = new HashMap<String, Object>();
@@ -533,7 +531,7 @@ public class BaseMapper<T extends BaseObject> implements IBaseDAO, Serializable 
 
     @Override
     public List<T> findByIds(List ids) {
-        assetInit();
+        //assetInit();
         Map<String, Object> paramMap = new HashMap<String, Object>();
         paramMap.put("ids", ids);
         paramMap.put("tbl", tableInfo);
@@ -544,7 +542,7 @@ public class BaseMapper<T extends BaseObject> implements IBaseDAO, Serializable 
 
     @Override
     public T queryForBaseObject(BaseObject dto) {
-        assetInit();
+        //assetInit();
         Map<String, Object> paramMap = new HashMap<String, Object>();
         tableInfo.setMapperList(TableUtils.getMapper(tableInfo.getPojoClass(), dto));
         paramMap.put("tbl", tableInfo);
@@ -556,7 +554,7 @@ public class BaseMapper<T extends BaseObject> implements IBaseDAO, Serializable 
 
     @Override
     public T queryForBaseObjectByCriteria(String criteria) {
-        assetInit();
+        //assetInit();
         Map<String, Object> paramMap = new HashMap<String, Object>();
         tableInfo.setMapperList(new ArrayList<>());
         paramMap.put("tbl", tableInfo);
@@ -593,7 +591,7 @@ public class BaseMapper<T extends BaseObject> implements IBaseDAO, Serializable 
 
     @Override
     public List query() {
-        assetInit();
+        //assetInit();
         String template = "select * from " + tableInfo.getTblName();
         log.debug("{}", template);
         return getListObject(template);
@@ -638,7 +636,7 @@ public class BaseMapper<T extends BaseObject> implements IBaseDAO, Serializable 
 
     @Override
     public List<T> query(Object pojoOrMap, String criteria, int begin, int limit, String order) {
-        assetInit();
+        //assetInit();
         BaseObject baseObject = null;
         if (pojoOrMap instanceof Map) {
             baseObject = toConvertion((Map) pojoOrMap);
@@ -679,7 +677,7 @@ public class BaseMapper<T extends BaseObject> implements IBaseDAO, Serializable 
     }
 
     public Integer queryCountByTpl(String sqlKey, Map argsMap) {
-        assetInit();
+        //assetInit();
         String sql = getSqlMap().get(sqlKey);
         String template = parseSqlTemplate(sql, argsMap);
         log.debug("{}", template);
@@ -693,13 +691,13 @@ public class BaseMapper<T extends BaseObject> implements IBaseDAO, Serializable 
 
     @Override
     public Integer queryCount(Object dto) {
-        assetInit();
+        //assetInit();
         return queryCount(dto, null);
     }
 
     @Override
     public Integer queryCount(Object beanOrMap, String criteria) {
-        assetInit();
+        //assetInit();
         BaseObject dto;
         if(beanOrMap == null){
             dto = null;
@@ -742,7 +740,7 @@ public class BaseMapper<T extends BaseObject> implements IBaseDAO, Serializable 
 
     @Override
     public int executeUpdate(String sqlTemplate, Map argsMap) {
-        assetInit();
+        //assetInit();
         if (StringUtils.isBlank(sqlTemplate)) {
             throw new IllegalArgumentException("sqlkey can't be empty");
         }
@@ -778,7 +776,7 @@ public class BaseMapper<T extends BaseObject> implements IBaseDAO, Serializable 
 
     @Override
     public List queryForListByMap(String sqlTemplate, Map queryMap, Class elementType) {
-        assetInit();
+        //assetInit();
         if (StringUtils.isBlank(sqlTemplate)) {
             throw new IllegalArgumentException("sqlkey can't be empty");
         }
@@ -826,7 +824,7 @@ public class BaseMapper<T extends BaseObject> implements IBaseDAO, Serializable 
 
     @Override
     public Object queryForObject(String sqlTemplate, Map queryMap, Class requiredType) {
-        assetInit();
+        //assetInit();
         if (StringUtils.isBlank(sqlTemplate)) {
             throw new IllegalArgumentException("sqlTemplate can't be empty");
         }
@@ -858,7 +856,7 @@ public class BaseMapper<T extends BaseObject> implements IBaseDAO, Serializable 
 
     @Override
     public List<T> queryByCriteria(String criteria) {
-        assetInit();
+        //assetInit();
         Map<String, Object> paramMap = new HashMap();
         tableInfo.setMapperList(new ArrayList<>());
         paramMap.put("tbl", tableInfo);
@@ -887,7 +885,7 @@ public class BaseMapper<T extends BaseObject> implements IBaseDAO, Serializable 
 
     @Override
     public List<Map<String, Object>> queryByTpl(String sqlTemplate, Object paramObject, int begin, int limit) {
-        assetInit();
+        //assetInit();
         Map<String, Object> paramMap = new HashMap();
         if (paramObject instanceof Map) {
             paramMap.putAll((Map) paramObject);
@@ -942,7 +940,7 @@ public class BaseMapper<T extends BaseObject> implements IBaseDAO, Serializable 
     }
 
     public List queryForListByTpl(String sqlTemplate, Object paramObject, Class requireType, int begin, int limit) {
-        assetInit();
+        //assetInit();
         Map<String, Object> paramMap = new HashMap();
         if (paramObject instanceof Map) {
             paramMap.putAll((Map) paramObject);
@@ -1169,13 +1167,13 @@ public class BaseMapper<T extends BaseObject> implements IBaseDAO, Serializable 
 
             if (lastModifyTime == null) {
                 /** 初始化加载sqlmap */
-                loadSqlMap(url, in);
+                SqlMapUtils.loadSqlMap(url, in);
                 lastModifyTime = new AtomicLong(currentLastmodify);
 
             } else {
                 if (currentLastmodify > 0 && currentLastmodify != lastModifyTime.longValue()) {
                     /** sqlmap 有更新，需重新加载 */
-                    loadSqlMap(url, in);
+                    SqlMapUtils.loadSqlMap(url, in);
                     lastModifyTime = new AtomicLong(currentLastmodify);
                 }
             }
@@ -1189,7 +1187,7 @@ public class BaseMapper<T extends BaseObject> implements IBaseDAO, Serializable 
         return this.sqlMap;
     }
 
-    private void loadSqlMap(URL url, InputStream fo) {
+  /*  private void loadSqlMap(URL url, InputStream fo) {
         Map<String, String> tempUserSqlMap = new HashMap<String, String>();
         try {
             char[] chars = IOUtils.toCharArray(fo, "UTF-8");
@@ -1238,7 +1236,7 @@ public class BaseMapper<T extends BaseObject> implements IBaseDAO, Serializable 
         }
         this.sqlMap = tempUserSqlMap;
         tempUserSqlMap = null;
-    }
+    }*/
 
     /**
      * 解析sqlTemplate

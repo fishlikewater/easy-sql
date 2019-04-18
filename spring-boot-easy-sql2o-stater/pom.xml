@@ -15,8 +15,9 @@
 
     <properties>
         <java.version>1.8</java.version>
-        <spring.boot.version>2.1.1.RELEASE</spring.boot.version>
+        <spring.boot.version>2.1.4.RELEASE</spring.boot.version>
         <sql2o.core.version>1.0-RELEASE</sql2o.core.version>
+        <lombok-version>1.16.18</lombok-version>
     </properties>
 
     <dependencies>
@@ -35,6 +36,15 @@
             <groupId>com.github.fishlikewater</groupId>
             <artifactId>sql2o-core</artifactId>
             <version>${sql2o.core.version}</version>
+        </dependency>
+
+        <!-- lombok -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>${lombok-version}</version>
+            <scope>compile</scope>
+            <optional>true</optional>
         </dependency>
 
         <dependency>

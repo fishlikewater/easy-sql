@@ -9,6 +9,8 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.RandomUtils;
 import org.sql2o.Connection;
 import org.sql2o.Sql2o;
 
@@ -114,6 +116,30 @@ public final class BaseUtils {
             }
 
         }
+    }
+
+    private static Sql2o getSql2o(String sql) {
+        if(BaseUtils.getBuilder().getOpenReadyAndWrite()){
+            if(StringUtils.startsWithIgnoreCase(sql, "select")){
+                return BaseUtils.onlyRead.get(RandomUtils.nextInt(BaseUtils.onlyRead.size()));
+            }else{
+                return BaseUtils.readWrite.get(RandomUtils.nextInt(BaseUtils.readWrite.size()));
+            }
+        }else{
+            if (null != sql2o) {
+                return sql2o;
+            }
+            return sql2o;
+        }
+    }
+
+
+    public static Connection getConn(String sql) {
+        Connection connection = BaseUtils.connectionThreadLocal.get();
+        if (null != connection) {
+            return connection;
+        }
+        return getSql2o(sql).open();
     }
     /**
      * 原子提交

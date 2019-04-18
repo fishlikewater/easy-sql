@@ -14,6 +14,11 @@ public class MyTest {
 
     @Test
     public void test1(){
-        System.out.println(1);
+        int a = 1;
+        System.out.println();
+       /* List<BaseModelTest> list = new BaseModelTest().List(new QueryModel()
+                .equal("id", "1")
+                .in("name", new String[]{"1", "2"}));*/
+        //System.out.println(list);
     }
 }
