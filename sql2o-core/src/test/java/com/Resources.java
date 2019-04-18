@@ -2,6 +2,7 @@ package com;
 
 import lombok.Data;
 import scorpio.annotation.Id;
+import scorpio.annotation.Mapping;
 import scorpio.core.BaseModel;
 
 /**
@@ -14,6 +15,7 @@ import scorpio.core.BaseModel;
  * @since
  **/
 @Data
+@Mapping(fileMapper = "/Resources.sqlmap")
 public class Resources extends BaseModel<Resources> {
     @Id
     private Integer id;

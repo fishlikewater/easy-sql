@@ -260,7 +260,7 @@ public class JdbcTest {
     public void testModel(){
         Resources resources = new Resources();
         long t1 = System.currentTimeMillis();
-        Resources queryCount = resources.object(new QueryModel().tpl("queryCount", null));
+        Integer queryCount = resources.object(new QueryModel().tpl("queryCount", null), Integer.class);
         System.out.println(queryCount);
         //resources.update(new UpdateModel().set("res_url", "https://baidu.com"));
         List<Map<String, Object>> list = resources.maps(new QueryModel().equal("id", "1"));

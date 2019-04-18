@@ -1,3 +1,0 @@
-queryCount = select count(*) from t_option;
-
-query = select * from t_option where name='玩物';

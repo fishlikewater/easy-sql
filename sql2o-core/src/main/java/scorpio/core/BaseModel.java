@@ -245,7 +245,7 @@ public abstract class BaseModel<T extends BaseModel> {
     private void loadSqlMap(){
         String path = "";
         Map<String, String> sqlCahceMap = SqlMapUtils.getSqlCahceMap(tClass.getSimpleName());
-        if(sqlCahceMap != null){
+        if(sqlCahceMap != null && !BaseUtils.getBuilder().getDev()){
             this.sqlMap.putAll(sqlCahceMap);
         }else{
             Mapping mapping = tClass.getAnnotation(Mapping.class);
@@ -262,7 +262,7 @@ public abstract class BaseModel<T extends BaseModel> {
                     }
 
                 }else{
-                    path = tClass.getSimpleName() + ".sqlmap";
+                    path =  tClass.getSimpleName() + ".sqlmap";
                 }
             }else{
                 path = tClass.getSimpleName() + ".sqlmap";
