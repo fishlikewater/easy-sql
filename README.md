@@ -27,7 +27,7 @@ public class Resources extends BaseModel<Resources> {
     private Integer sort;
 }
 ```
-实体类（默认表名驼峰格式，可通过注解@Mapping table属性指定）继承BaseModel, 支持注解的注解@Mapping,@Id,@Column,@Transient
+实体类（默认表名驼峰格式，可通过注解@Mapping table属性指定）继承BaseModel, 支持注解的注解@Table,@Id,@Column,@Transient
           
 > 2018-03-13 添加多数据源支持
 
