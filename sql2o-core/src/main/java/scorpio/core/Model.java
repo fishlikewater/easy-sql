@@ -1,7 +1,6 @@
 package scorpio.core;
 
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.sql2o.Connection;
 import org.sql2o.Query;
@@ -42,7 +41,6 @@ public abstract class Model<T> {
     @Transient
     protected Class<T> tClass;
     @Transient
-    @Getter
     protected String idName;
 
     @Transient

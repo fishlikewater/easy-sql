@@ -81,7 +81,7 @@ public class QueryModel {
         sql.append("from ");
         sql.append(table).append(" ");
         if(queryStr.length() == 0){
-            return sql.toString();
+            return sql.append(pageStr).toString();
         }else{
             sql.append("where ");
             if(pageStr.length() == 0){
