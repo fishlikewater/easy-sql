@@ -6,6 +6,28 @@
 > 内置常用查询模板,快速使用          
 > sql使用专门的资源文件维护,与代码分离        
 > 使用注解,最大化减少代码量
+
+> 2019-04-19 ActiveRecord 模式
+
+```java
+@Data
+@Mapping(fileMapper = "/Resources.sqlmap")
+public class Resources extends BaseModel<Resources> {
+    @Id
+    private Integer id;
+    @Column("name")
+    private String name;
+
+    private String resUrl;
+
+    private Integer type;
+
+    private Integer parentId;
+    
+    private Integer sort;
+}
+```
+实体类（默认表名驼峰格式，可通过注解@Mapping table属性指定）继承BaseModel, 支持注解的注解@Mapping,@Id,@Column,@Transient
         
 ## 使用方式
 
