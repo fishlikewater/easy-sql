@@ -34,13 +34,8 @@ public final class BaseUtils {
 
     @Setter
     @Accessors(chain = true)
-    private Boolean isClearCache = false;
-    @Setter
-    @Accessors(chain = true)
     private Boolean dev = false;
-    @Setter
-    @Accessors(chain = true)
-    private Boolean create = false;
+
     @Setter
     @Accessors(chain = true)
     private Boolean openReadyAndWrite = false;
