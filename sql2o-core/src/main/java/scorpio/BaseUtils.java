@@ -55,7 +55,7 @@ public final class BaseUtils {
 
     public static Sql2o open(String url, String user, String password) {
         sql2o = new Sql2o(url, user, password);
-        log.info("⬢ scorpio-JDBC initializing");
+        log.info("⬢ easy-sql initializing");
         try {
             dataType = sql2o.getConnectionSource().getConnection().getMetaData().getDatabaseProductName();
             log.info("⬢ 连接数据库是:"+dataType+"");
@@ -67,7 +67,7 @@ public final class BaseUtils {
 
     public static Sql2o open(DataSource dataSource) {
         sql2o = new Sql2o(dataSource);
-        log.info("⬢ scorpio-JDBC initializing");
+        log.info("⬢ easy-sql initializing");
         try {
             dataType = dataSource.getConnection().getMetaData().getDatabaseProductName();
             log.info("⬢ 连接数据库是:"+dataType+"");
@@ -79,7 +79,7 @@ public final class BaseUtils {
 
     public static Sql2o open(Sql2o sql2o_) {
         sql2o = sql2o_;
-        log.info("⬢ scorpio-JDBC initializing");
+        log.info("⬢ easy-sql initializing");
         try {
             dataType = sql2o_.getConnectionSource().getConnection().getMetaData().getDatabaseProductName();
             System.out.println("⬢ 连接数据库是:"+dataType+"");
