@@ -11,7 +11,7 @@
 
 ```java
 @Data
-@Mapping(fileMapper = "/Resources.sqlmap")
+@Table(fileMapper = "/Resources.sqlmap")
 public class Resources extends BaseModel<Resources> {
     @Id
     private Integer id;
@@ -28,7 +28,16 @@ public class Resources extends BaseModel<Resources> {
 }
 ```
 实体类（默认表名驼峰格式，可通过注解@Mapping table属性指定）继承BaseModel, 支持注解的注解@Mapping,@Id,@Column,@Transient
-        
+          
+> 2018-03-13 添加多数据源支持
+
+代码层面支持多只读数据源及多写数据源，需开启BaseUtils.getBuilder().setOPenReadyAndWrite(true),
+使用public static void openOnlyReady(DataSource... dataSource)与public static void openWrite(DataSource... dataSource)分别注入数据源，在进行数据库操作时，自动通过sql语句判断读写，随机选择读或写的数据源。          
+
+> 2018-12-30 添加多数据源支持  
+
+配置spring boot 注解自动配置 启动类上添加@EnableSql2o 注解(spring 容器中需注入数据源)         
+
 ## 使用方式
 
 ### 准备工作
@@ -53,17 +62,20 @@ public class Resources extends BaseModel<Resources> {
     BaseUtils．open(Sql2o sql2o_);
 </pre>
 
-2.编写一个DAO 使其继承BaseDAO,在类上使用@Table注解，标明其对应的数据库表，以及主键和映射实体类
+> spring boot 启动类上添加@EnableSql2o 注解（需maven添加自动配置依赖）
+
+
+2.编写一个mapper 使其继承BaseMapper<'对应实体'>,在类上使用@Table注解，标明其对应的数据库表，以及主键和映射实体类
 例如:     
-<pre>
-    @Table(pojo = AgendaDTO.class,table = "m_article", pk = "a_id")
-    public class AgendaDAO extends BaseMapper {
+```java
+    @Table(table = "m_article")
+    public class AgendaMapper extends BaseMapper<Agenda> {
     
     }
-</pre>
-这里的主键pk也可以放在映射的实体中，使用@Id标注:
+```
+在映射的实体中，使用@Id标注主键:
 ```java
-public class AgendaDTO implements BaseObject {
+public class Agenda implements BaseModel {
 
     @Transient
     private static final long serialVersionUID = 1L;
@@ -86,7 +98,7 @@ public class AgendaDTO implements BaseObject {
 }
 ```
 
-实体映射类需要实现BaseObject, 这里的 @Transient表示不是映射字段(主键默认字段名为id)
+实体映射类需要继承BaseModel, 这里的 @Transient表示不是映射字段
 
 ### api调用
 
@@ -94,43 +106,33 @@ public class AgendaDTO implements BaseObject {
 
 插入数据到数据库
 <pre>
-    AgendaDAO agendaDAO = new AgendaDAO();
-      AgendaDTO agendaDTO = new AgendaDTO();
+      AgendaMapper agendaMapper = new AgendaMapper();
+      Agenda agenda = new Agenda();
       /** 设置属性省略 */
-      articleDAO.create(agendaDTO);/** 设置有主键,或者主键自增 */
-      articleDAO.createAndId(agendaDTO);/** 根据配置策略生成主键,目前默认为uuid */
-      
-      AgendaDTO[] agendaDTOs = new AgendaDTO[];
-      articleDAO.createAndId(agendaDTOs);/** 批量创建 */
+      agendaMapper.save(agenda);/** 设置有主键 */
+      agendaMapper.saveIgnoreId(agenda) /** 忽略主键 自增*/
+      Agenda[] agendas = new Agenda[];
+      agendaMapper.save(agendas, true);/** 批量创建 */
 </pre>
 > 还有其他创建方式就不列出来了       
 
 
 删除数据
 <pre>
-    AgendaDAO agendaDAO = new AgendaDAO();
-    AgendaDTO agendaDTO = new AgendaDTO();
+    AgendaMapper agendaMapper = new AgendaMapper();
+    Agenda agenda = new Agenda();
         /** 设置属性省略 */
-    agendaDAO.remove(id);
-    agendaDAO.removeByIds(ids);
-    agendaDAO.removeByCondition(agendaDTO);
-    agendaDAO.removeByCriteria(" title='test' and color='red'");/**自定义条件*/
-
+    agendaMapper.removeById(id);
+    agendaMapper.removeByIds(ids);
+    agendaMapper.remove(new UpdateModel());/** 通过UpdateModel 构造删除条件*/
 </pre>
-> 还有其他删除方式就不列出来了
 
 更新数据
 <pre>
-    AgendaDAO agendaDAO = new AgendaDAO();
-    AgendaDTO agendaDTO = new AgendaDTO();
+    AgendaMapper agendaMapper = new AgendaMapper();
         /** 设置属性省略 */
-    agendaDTO.update(agendaDTO);
-    agendaDTO.update(map);/** 可以是和映射实体对应的Map */
-    agendaDTO.updateNotIgnoreNull(agendaDTO);
-    agendaDTO.updateByCondtion(BaseObject data, BaseObject condition);
-    agendaDTO.updateByConditionIgnoreEmpty(BaseObject data, BaseObject condition);
+    agendaMapper.update(new UpdateModel());/** 通过UpdateModel 构造更新条件*/
 </pre>
-> 还有其他更新方式就不列出来了
 
 
 查询的方式比较多，可以将查询的结果封装成任意对应的对象，就不一一详说了,下面说一下模板:   
@@ -147,18 +149,18 @@ public class AgendaDTO implements BaseObject {
                        and a.name like #%${title}%#
                     &lt;/#if&gt;;
 </pre>
-> 模板的写法可查看freemark语法(这里使用#${id}#，#包裹表示字符串),如此就可以使用DAO调用编写的sql
+> 模板的写法可查看freemark语法(这里使用#${id}#，#包裹表示字符串),如此就可以使用Mapper调用编写的sql
 
 <pre>
     Map<String, Object> paramMap = new HashMap<>(); 
     paramMap.put("title", title); 
-    int count = articleDAO.queryCountByTpl("queryCountByTitle", paramMap);
-
+    int count = agendaMapper.count(new QueryModel().tpl("queryCount", paramMap));
+    int count = agendaMapper.update(new UpdateModel().tpl("queryCount", paramMap)
 </pre>
 
 > 这里的sql可以做缓存 只要配置BaseUtils.getBuilder().setDev(false)。dev默认为false，在开发时最好设置为true，这不会缓存sql，可随意更改sql，并立即生效。
 
-### 支持表创建
+### 支持表创建(该功能已取消)
 
 > 如果需要在初始化的时候自动创建表，需要配置BaseUtils.getBuilder().setCreate(true)，dto需要注解配置:
 <pre>
@@ -218,11 +220,3 @@ decimal(10,2)，defaultValue为默认值，如果类型为Types.BOOLEAN时，默
 
 > 注意：查询结果如果为list&lt;map&gt; 那么所有的表头字段均被转换为小写。
                      
-> 2018-03-13 添加多数据源支持
-
-代码层面支持多只读数据源及多写数据源，需开启BaseUtils.getBuilder().setOPenReadyAndWrite(true),
-使用public static void openOnlyReady(DataSource... dataSource)与public static void openWrite(DataSource... dataSource)分别注入数据源，在进行数据库操作时，自动通过sql语句判断读写，随机选择读或写的数据源。          
-
-> 2018-12-30 添加多数据源支持  
-
-配置spring boot 注解自动配置 启动类上添加@EnableSql2o 注解(spring 容器中需注入数据源)         

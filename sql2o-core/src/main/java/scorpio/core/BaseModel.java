@@ -36,14 +36,14 @@ public abstract class BaseModel<T extends BaseModel> {
     protected Map<String, String> sqlMap = new HashMap<>(); //存储所有的sqlmap
 
     @Transient
-    private Map<String, String> mapping = new HashMap<>();
+    protected Map<String, String> mapping = new HashMap<>();
     @Transient
-    private String table;
+    protected String table;
     @Transient
-    private Class<T> tClass;
+    protected Class<T> tClass;
     @Transient
     @Getter
-    private String idName;
+    protected String idName;
 
     @Transient
     protected Sql2o sql2o;
@@ -311,7 +311,7 @@ public abstract class BaseModel<T extends BaseModel> {
      *
      * @param conn
      */
-    private void close(Connection conn) {
+    protected void close(Connection conn) {
         /** 不在事务中的时候才手动关闭 */
         if (BaseUtils.connectionThreadLocal.get() == null) {
             if (conn != null) {

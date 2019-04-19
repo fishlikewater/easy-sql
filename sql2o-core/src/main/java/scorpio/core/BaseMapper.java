@@ -1,6 +1,9 @@
 package scorpio.core;
 
 import lombok.extern.slf4j.Slf4j;
+import org.sql2o.Connection;
+import org.sql2o.Query;
+import scorpio.BaseUtils;
 
 import java.io.Serializable;
 import java.sql.SQLException;
@@ -30,7 +33,53 @@ public abstract class BaseMapper<T extends BaseModel> extends BaseModel<T> imple
             super.init();
         }
     }
+    /**
+     * 批量创建对象
+     *
+     * @param dtos
+     */
+    public void save(T[] dtos, boolean ignoreId) {
+        String sql = new InsertModel()
+                .setTable(super.table)
+                .setMapping(super.mapping)
+                .setIgnoreId(ignoreId)
+                .getSql();
 
+        log.debug("{}", sql);
+        Connection conn = BaseUtils.getConn(sql);
+        try {
+            Query query = conn.createQuery(sql);
+            for (T t : dtos) {
+                query.bind(t).addToBatch();
+            }
+            query.executeBatch();
+        } finally {
+            close(conn);
+        }
+    }
+
+    /**
+     * 根据id删除数据
+     *
+     * @param ids
+     */
+    private int removeByIds(Object[] ids) {
+        String sql = "";
+        UpdateModel updateModel = new UpdateModel().setTable(super.table);
+        if(ids instanceof String[]){
+            sql = updateModel.in(super.idName, (String[]) ids).getDeleteSql();
+        }else{
+            sql = updateModel.criteria(super.idName + "in(" + ids + ")").getDeleteSql();
+        }
+        log.debug(sql);
+        Connection conn = BaseUtils.getConn(sql);
+        try {
+            Query query = conn.createQuery(sql);
+            return query.executeUpdate().getResult();
+        } finally {
+            close(conn);
+        }
+    }
     /*
     *//**
      * 存储当前pojo 对应.sqlmap文件中的sql语句
