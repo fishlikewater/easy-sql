@@ -2,6 +2,7 @@ package scorpio.core;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.Accessors;
 
 import java.util.Map;
 
@@ -10,6 +11,7 @@ import java.util.Map;
  * @date 2019年04月18日 16:26
  * @since 1.6
  **/
+@Accessors(chain = true)
 public class UpdateModel{
 
     private QueryModel queryModel = new QueryModel();
@@ -178,6 +180,16 @@ public class UpdateModel{
      */
     public UpdateModel in(String column, String[] arr){
         queryModel.in(column, arr);
+        return this;
+    }
+
+    /**
+     *  添加自定义语句
+     * @param sql 自定义sql
+     * @return
+     */
+    protected UpdateModel criteria(String sql){
+        queryModel.criteria(sql);
         return this;
     }
 

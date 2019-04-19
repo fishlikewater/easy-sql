@@ -9,6 +9,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -22,6 +23,8 @@ public class SqlMapUtils {
 
     public static Map<String, Map<String, String>> sqlCache = new HashMap<>();
 
+    public static ReentrantLock lock = new ReentrantLock();
+
     public static void cacheSqlMap(String className, Map<String, String> sqlMap){
         if(!sqlCache.containsKey(className)){
             sqlCache.put(className, sqlMap);
@@ -34,6 +37,7 @@ public class SqlMapUtils {
     }
 
     public static <T> Map<String, String> getSqlMap(String path, Class<T> t) {
+        lock.lock();
         URL url = t.getResource(path);
         try {
             if (url == null) {
@@ -57,6 +61,8 @@ public class SqlMapUtils {
         } catch (URISyntaxException e) {
             log.error("{}", "file" + t.getClass().getSimpleName() + ".sqlmap not find");
             return null;
+        }finally {
+            lock.unlock();
         }
     }
 

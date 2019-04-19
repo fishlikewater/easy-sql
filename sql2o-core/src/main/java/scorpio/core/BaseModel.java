@@ -101,7 +101,7 @@ public abstract class BaseModel<T extends BaseModel> {
     /**
      *
      * @param id id
-     * @return 查询对象
+     * @return 通过主键查询对象
      */
     public T findById(Object id){
         String sql = "";
@@ -113,6 +113,24 @@ public abstract class BaseModel<T extends BaseModel> {
         log.debug(sql);
         Query query = BaseUtils.getConn(sql).createQuery(sql);
         return query.setColumnMappings(mapping).executeAndFetchFirst(tClass);
+    }
+
+    /**
+     *
+     * @param id id
+     * @return 通过主键删除对象
+     */
+    public int removeById(Object id){
+        String sql = "";
+        UpdateModel updateModel = new UpdateModel().setTable(table);
+        if(id instanceof String){
+            sql = updateModel.equal(idName, id.toString()).getDeleteSql();
+        }else{
+            sql = updateModel.criteria(idName + "=" + id).getDeleteSql();
+        }
+        log.debug(sql);
+        Query query = BaseUtils.getConn(sql).createQuery(sql);
+        return query.executeUpdate().getResult();
     }
 
     /**
