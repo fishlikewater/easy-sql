@@ -23,7 +23,6 @@ public class ParseTpl {
      * @return
      */
     public static String parseSqlTemplate(String sqlTemplate, Map paramMap){
-        sqlTemplate = processSqlmap(sqlTemplate);
         Template t;
         StringWriter stringWriter = new StringWriter();
         Configuration cfg = getConfiguration();
@@ -40,22 +39,6 @@ public class ParseTpl {
         }
     }
 
-
-    /**
-     * 从sqlmap文件中取得sql
-     * @param sqlTemplate
-     * @return
-     */
-    public static String processSqlmap(String sqlTemplate) {
-        if(BaseMap.getBasicMap().containsKey(sqlTemplate)) {
-            String key = sqlTemplate;
-            sqlTemplate = BaseMap.getBasicMap().get(sqlTemplate);
-            log.debug("Get the SQL template from `sqlmap`:");
-            log.debug("key:" + key);
-            log.debug("sql:" + sqlTemplate);
-        }
-        return sqlTemplate;
-    }
 
 
     /**
