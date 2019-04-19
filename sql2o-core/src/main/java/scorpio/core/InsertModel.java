@@ -19,8 +19,15 @@ public class InsertModel {
 
     private Map<String, String> mapping = new HashMap<>();
 
+    private boolean ignoreId = false;
+
+    private String idName;
+
 
     public String getSql(){
+        if(ignoreId){
+            mapping.remove(idName);
+        }
         StringBuffer insertStr = new StringBuffer();
         StringBuffer value = new StringBuffer();
         insertStr

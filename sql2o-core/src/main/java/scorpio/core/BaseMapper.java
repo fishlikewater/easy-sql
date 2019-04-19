@@ -1,32 +1,9 @@
 package scorpio.core;
 
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.math.RandomUtils;
-import org.sql2o.Connection;
-import org.sql2o.Query;
-import org.sql2o.Sql2o;
-import scorpio.BaseUtils;
-import scorpio.annotation.*;
-import scorpio.exception.BaseRuntimeException;
-import scorpio.migrate.Execute;
-import scorpio.utils.*;
 
-import java.io.*;
-import java.lang.reflect.Field;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.sql.PreparedStatement;
+import java.io.Serializable;
 import java.sql.SQLException;
-import java.sql.Types;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * @author zhangx
@@ -35,27 +12,45 @@ import java.util.concurrent.locks.ReentrantLock;
  * 该类主要扩展操作(sql与代码分离，以.sqlmap为后缀的文件来存储sql语句，每句sql以K-V的方式)
  */
 @Slf4j
-public abstract class BaseMapper<T extends BaseObject> implements IBaseDAO, Serializable {
+public abstract class BaseMapper<T extends BaseModel> extends BaseModel<T> implements Serializable {
 
     /**
+     * 通过对象创建数据
+     *
+     * @param t 保存对象
+     * @return
+     */
+    public  Object save(T t) {
+        return t.save();
+    }
+
+    @Override
+    protected void assetInit() {
+        if (super.isInit.compareAndSet(1, 2)) {
+            super.init();
+        }
+    }
+
+    /*
+    *//**
      * 存储当前pojo 对应.sqlmap文件中的sql语句
-     */
+     *//*
     private Map<String, String> sqlMap;
-    /**
+    *//**
      * 文件最后修改时间(判断文件是否更新使用)
-     */
+     *//*
     private AtomicLong lastModifyTime = null;
-    /**
+    *//**
      * 锁
-     */
+     *//*
     ReentrantLock lock = new ReentrantLock();
-    /**
+    *//**
      * 表信息
-     */
+     *//*
     private TableInfo tableInfo;
-    /**
+    *//**
      * 分页记录起始
-     */
+     *//*
     static final String PARAM_BEGIN_NUM = "begin";
     static final String PARAM_INTERVAL = "limit";
     @Transient
@@ -68,63 +63,41 @@ public abstract class BaseMapper<T extends BaseObject> implements IBaseDAO, Seri
         assetInit();
     }
 
-    /**
+    *//**
      * 通过对象创建数据
      *
-     * @param dto
+     * @param t 保存对象
      * @return
-     */
-    @Override
-    public Object create(BaseObject dto) {
-        //assetInit();
-        Map<String, Object> paramMap = new HashMap<String, Object>();
-        getNotEmptyColumn(dto);
-        paramMap.put("tbl", tableInfo);
-        String template = parseSqlTemplate("create", paramMap);
-        log.debug("{}", template);
-        Connection conn = getConn(template);
-        try {
-            Object key = conn.createQuery(template).bind(dto).executeUpdate().getKey();
-            return key;
-        } finally {
-            close(conn);
-        }
+     *//*
+    public  Object save(T t) {
+        return t.save();
     }
 
-    /**
-     * 通过map创建对象,map中的key为对应对象的属性
-     *
-     * @param map
-     */
-    @Override
-    public Object create(Map<String, Object> map) {
-        //assetInit();
-        BaseObject dto = toConvertion(map);
-        return create(dto);
+    public  Object saveIgnoreId(T t) {
+        return t.saveIgnoreId();
     }
 
-    /**
+    *//**
      * 通过传入的id 创建对象
      *
-     * @param dto
+     * @param t
      * @param id
-     */
-    @Override
-    public void create(BaseObject dto, String id) {
-        /**先获取主键列 */
-        //assetInit();
-        if (StringUtils.isBlank(id) && tableInfo.getGenerator() != Generator.AUTO) {
+     *//*
+    
+    public void save(T t, Object id) {
+        *//**先获取主键列 *//*
+        if (id != null && tableInfo.getGenerator() != Generator.AUTO) {
             log.error("Primary key cannot be empty");
             throw new BaseRuntimeException();
         }
         Field pkCloumn = null;
         try {
-            pkCloumn = dto.getClass().getDeclaredField(NameUtils.getCamelName(tableInfo.getPkName()));
+            pkCloumn = t.getClass().getDeclaredField(t.getIdName());
             pkCloumn.setAccessible(true);
-            pkCloumn.set(dto, id);
-            create(dto);
+            pkCloumn.set(t, id);
+            save(t);
         } catch (NoSuchFieldException e) {
-            log.error("No primary key column mappings in :"+ dto.getClass ().getSimpleName(), e);
+            log.error("No primary key column mappings in :"+ t.getClass ().getSimpleName(), e);
             throw new BaseRuntimeException();
         } catch (IllegalAccessException e) {
             log.error("Primary key cannot be empty", e);
@@ -132,39 +105,38 @@ public abstract class BaseMapper<T extends BaseObject> implements IBaseDAO, Seri
         }
     }
 
-    /**
+    *//**
      * 批量创建对象
      *
      * @param dtos
-     */
-    @Override
-    public void create(BaseObject[] dtos) {
-        //assetInit();
-        Map<String, Object> paramMap = new HashMap<String, Object>();
-        tableInfo.setColumnsWithNotEmptyValue(tableInfo.getDtoAllValueName());
-        tableInfo.setNotEmptyDBColumnList(tableInfo.getDbColumnList());
-        paramMap.put("tbl", tableInfo);
-        String template = parseSqlTemplate("create", paramMap);
-        log.debug("{}", template);
-        Connection conn = getConn(template);
+     *//*
+    
+    public void save(T[] dtos, boolean ignoreId) {
+        String sql = new InsertModel()
+                .setTable(tableInfo.getTblName())
+                .setMapping(tableInfo.getMapping())
+                .setIgnoreId(ignoreId)
+                .getSql();
+
+        log.debug("{}", sql);
+        Connection conn = getConn(sql);
         try {
-            Query query = conn.createQuery(template);
-            for (BaseObject dto : dtos) {
-                query.bind(dto).addToBatch();
+            Query query = conn.createQuery(sql);
+            for (T t : dtos) {
+                query.bind(t).addToBatch();
             }
             query.executeBatch();
         } finally {
             close(conn);
         }
     }
-
-    /**
+*//*
+    *//**//**
      * mysql 专用的高效插入方法，是适用于mysql数据库(插入效率，测试[读取三十万数据，插入新表共耗时5s])
      *
      * @param dtos
-     */
-    public void create4Batch(List<? extends BaseObject> dtos) {
-        //assetInit();
+     *//**//*
+    public void save4Batch(List<T> dtos) {
         Map<String, Object> paramMap = new HashMap<String, Object>();
         List dbColumnList = tableInfo.getDbColumnList();
         if (tableInfo.getGenerator() == Generator.AUTO) {
@@ -181,355 +153,128 @@ public abstract class BaseMapper<T extends BaseObject> implements IBaseDAO, Seri
             log.error("SQL data injection exception", e);
             throw new BaseRuntimeException();
         }
-    }
+    }*//*
 
-    /**
+    *//**
      * 创建数据 生成id
      *
-     * @param dto
+     * @param t
      * @return
-     */
-    @Override
-    public String createAndId(BaseObject dto) {
-        //assetInit();
-        String id = String.valueOf(IdFactory.getId(tableInfo.getGenerator(), tableInfo.getIdDefined()));
-        create(dto, id);
+     *//*
+    
+    public Object saveAndId(T t) {
+        Object id = IdFactory.getId(tableInfo.getGenerator(), tableInfo.getIdDefined());
+        save(t, id);
         return id;
     }
 
-
-    /**
-     * 根据id删除数据
-     *
-     * @param id
-     */
-
-    public void remove(String id) {
-        removeById(id);
-    }
-
-    public void remove(Integer id) {
-        removeById(id);
-    }
-
-    @Override
-    public void removeById(Object id) {
-        //assetInit();
-        Map<String, Object> paramMap = new HashMap<String, Object>();
-        paramMap.put("tbl", tableInfo);
-        String template = parseSqlTemplate("removeById", paramMap);
-        log.debug("{}", template);
-        Connection conn = getConn(template);
+    
+    public int removeById(Object id) {
+        String sql = "";
+        UpdateModel updateModel = new UpdateModel().setTable(tableInfo.getTblName());
+        if(id instanceof String){
+            sql = updateModel.equal(tableInfo.getPkName(), id.toString()).getDeleteSql();
+        }else{
+            sql = updateModel.criteria(tableInfo.getPkName() + "=" + id).getDeleteSql();
+        }
+        log.debug(sql);
+        Connection conn = BaseUtils.getConn(sql);
         try {
-            int c = conn.createQuery(template).addParameter("id", id).executeUpdate().getResult();
-            if (c == 0) {
-                //throw new BaseRuntimeException("数据异常，删除失败");
-                log.warn("{}", "No data is deleted to detect whether the primary key "+ id +" exists");
-            }
+            Query query = conn.createQuery(sql);
+            return query.executeUpdate().getResult();
         } finally {
             close(conn);
         }
     }
 
-    @Override
-    public void remove(String[] ids) {
-        removeByIds(ids);
-    }
 
-    @Override
-    public void remove(Integer[] ids) {
-        removeByIds(ids);
-    }
-
-    /**
+    *//**
      * 根据id删除数据
      *
      * @param ids
-     */
-    private void removeByIds(Object[] ids) {
-        //assetInit();
-        Map<String, Object> paramMap = new HashMap<String, Object>();
-        paramMap.put("tbl", tableInfo);
-        String template = parseSqlTemplate("removeById", paramMap);
-        log.debug("{}", template);
-        Connection conn = getConn(template);
+     *//*
+    private int removeByIds(Object[] ids) {
+        String sql = "";
+        UpdateModel updateModel = new UpdateModel().setTable(tableInfo.getTblName());
+        if(ids instanceof String[]){
+            sql = updateModel.in(tableInfo.getPkName(), (String[]) ids).getDeleteSql();
+        }else{
+            sql = updateModel.criteria(tableInfo.getPkName() + "in(" + ids + ")").getDeleteSql();
+        }
+        log.debug(sql);
+        Connection conn = BaseUtils.getConn(sql);
         try {
-            Query query = conn.createQuery(template);
-            for (int i = 0; i < ids.length; i++) {
-                query.addParameter("id", ids[i]).addToBatch();
-            }
-            query.executeBatch();
+            Query query = conn.createQuery(sql);
+            return query.executeUpdate().getResult();
         } finally {
             close(conn);
         }
     }
 
-    /**
+    *//**
      * 根据条件删除数据
      *
-     * @param dto
+     * @param updateModel
      * @return
-     */
-    @Override
-    public int removeByCondition(BaseObject dto) {
-        //assetInit();
-        Map<String, Object> paramMap = new HashMap<String, Object>();
-        tableInfo.setMapperList(TableUtils.getMapper(tableInfo.getPojoClass(), dto));
-        paramMap.put("tbl", tableInfo);
-        String template = parseSqlTemplate("remove", paramMap);
-        log.debug("{}", template);
-        Connection conn = getConn(template);
+     *//*
+    
+    public int remove(UpdateModel updateModel) {
+        updateModel.setTable(tableInfo.getTblName());
+        if(updateModel.isUseTpl()){
+            updateModel.setSqlTemplate(this.sqlMap.get(updateModel.getTemplateName()));
+        }
+        String sql = updateModel.getDeleteSql();
+        log.debug("{}", sql);
+        Connection conn = getConn(sql);
         try {
-            return conn.createQuery(template).bind(dto).executeUpdate().getResult();
+            return conn.createQuery(sql).executeUpdate().getResult();
         } finally {
             close(conn);
         }
     }
 
-    /**
-     * 获取不为空的列
-     *
-     * @param dto
-     */
-    private void getNotEmptyColumn(BaseObject dto) {
-        Map<String, List> map = TableUtils.getNotEmptyColumn(tableInfo.getPojoClass(), dto);
-        List columnsWithNotEmptyValue = map.get("dtoColumn");
-        List notEmptyDBColumnList = map.get("dbColumn");
-        tableInfo.setColumnsWithNotEmptyValue(columnsWithNotEmptyValue);
-        tableInfo.setNotEmptyDBColumnList(notEmptyDBColumnList);
-    }
 
-    /**
-     * map 转换为对象
-     *
-     * @param map
-     * @return
-     */
-    private BaseObject toConvertion(Map<String, Object> map) {
-        try {
-            map.forEach((k, v) -> {
-                if (!tableInfo.getDtoAllValueName().contains(k)) {
-                    log.error("Attribute in map: " + k + "is not within the database mapping object");
-                    throw new BaseRuntimeException();
-                }
-            });
-            return BeanUtils.mapToBean(map, tableInfo.getPojoClass().newInstance());
-        } catch (InstantiationException e) {
-            log.error("Instantiation abnormity", e);
-            throw new BaseRuntimeException();
-        } catch (IllegalAccessException e) {
-            log.error("Parameter anomaly", e);
-            throw new BaseRuntimeException();
-        }
-    }
-
-    /**
-     * BaseObject 转换为Map
-     *
-     * @param dto
-     * @return
-     */
-    private Map<String, Object> toConvertion(BaseObject dto) {
-
-        return BeanUtils.beanToMap(dto);
-    }
-
-    /**
-     * 删除符合条件的记录
-     * 使用这个方法的时候需要注意，如果传入的dto里没有任何字段被赋值，则有可能删除整个
-     * 表的记录
-     *
-     * @param map 其中的key要与pojo属性值对应
-     * @return
-     */
-    @Override
-    public int removeByCondition(Map<String, Object> map) {
-        //assetInit();
-        BaseObject baseObject = toConvertion(map);
-        return removeByCondition(baseObject);
-    }
-
-    /**
-     * @param criteria sql条件,如果criteria为blank则不进行删除
-     * @return
-     */
-    @Override
-    public int removeByCriteria(String criteria) {
-        if (StringUtils.isBlank(criteria)) {
-            log.error("The deletion condition is not empty, which removes all data, and if you need to delete all the data, use the removeAll method");
-            throw new BaseRuntimeException();
-        }
-        //assetInit();
-        String sqlTemplate = "delete from " + tableInfo.getTblName() + " where " + criteria + "";
-        Connection conn = getConn(sqlTemplate);
-        try {
-            return conn.createQuery(sqlTemplate).executeUpdate().getResult();
-        } finally {
-            close(conn);
-        }
-    }
-
-    /**
-     * @return
-     */
-    @Override
-    public int removeAll() {
-        //assetInit();
-        String sqlTemplate = "delete from " + tableInfo.getTblName() + "";
-        Connection conn = getConn(sqlTemplate);
-        try {
-            return conn.createQuery(sqlTemplate).executeUpdate().getResult();
-        } finally {
-            close(conn);
-        }
-    }
-
-    /**
+    *//**
      * 更新对象
      *
-     * @param dto
+     * @param updateModel
      * @return
-     */
-    @Override
-    public int update(BaseObject dto) {
-        //assetInit();
-        String camelName = NameUtils.getCamelName(tableInfo.getPkName());
-        try {
-            Field field = tableInfo.getPojoClass().getDeclaredField(camelName);
-            field.setAccessible(true);
-            Object o = field.get(dto);
-            if (o == null) {
-                log.error("The object does not have the primary key value, and the update fails!!!");
-                throw new BaseRuntimeException();
-            }
-            getNotEmptyColumn(dto);
-            Map<String, Object> paramMap = new HashMap<String, Object>();
-            tableInfo.setMapperList(TableUtils.getMapper(tableInfo.getPojoClass(), dto));
-            paramMap.put("tbl", tableInfo);
-            paramMap.put("id", o);
-            String template = parseSqlTemplate("update", paramMap);
-            log.debug("{}", template);
-            Connection conn = getConn(template);
-            try {
-                int result = conn.createQuery(template).bind(dto).executeUpdate().getResult();
-                if (result == 0) {
-                    log.error("No data, update failure");
-                    //throw new BaseRuntimeException();
-                }
-                return result;
-            } finally {
-                close(conn);
-            }
-
-        } catch (NoSuchFieldException e) {
-            log.error("Getting the object primary key attribute failure", e);
-            throw new BaseRuntimeException();
-        } catch (IllegalAccessException e) {
-            log.error("Getting the object primary key attribute failure", e);
-            throw new BaseRuntimeException();
+     *//*
+    
+    public int update(UpdateModel updateModel) {
+        updateModel.setTable(tableInfo.getTblName());
+        if(updateModel.isUseTpl()){
+            updateModel.setSqlTemplate(this.sqlMap.get(updateModel.getTemplateName()));
         }
-    }
-
-    @Override
-    public int update(Map<String, Object> map) {
-        //assetInit();
-        BaseObject baseObject = toConvertion(map);
-        return update(baseObject);
-    }
-
-    @Override
-    public int updateNotIgnoreNull(BaseObject dto) {
-        //assetInit();
-        String camelName = NameUtils.getCamelName(tableInfo.getPkName());
+        String sql = updateModel.getUpdateSql();
+        log.debug("{}", sql);
+        Connection conn = getConn(sql);
         try {
-            Field field = tableInfo.getPojoClass().getDeclaredField(camelName);
-            field.setAccessible(true);
-            Object o = field.get(dto);
-            if (o == null) {
-                log.error("The object does not have the primary key value, and the update fails!!!");
-                throw new BaseRuntimeException();
-            }
-            Map<String, Object> paramMap = new HashMap<String, Object>();
-            tableInfo.setMapperList(tableInfo.getMapperForAllList());
-            paramMap.put("tbl", tableInfo);
-            paramMap.put("id", o);
-            String template = parseSqlTemplate("update", paramMap);
-            log.debug("{}", template);
-            Connection conn = getConn(template);
-            try {
-                return conn.createQuery(template).bind(dto).executeUpdate().getResult();
-            } finally {
-                close(conn);
-            }
-
-        } catch (NoSuchFieldException e) {
-            log.error("Getting the object primary key attribute failure", e);
-            throw new BaseRuntimeException();
-        } catch (IllegalAccessException e) {
-            log.error("Getting the object primary key attribute failure", e);
-            throw new BaseRuntimeException();
-        }
-    }
-
-    @Override
-    public int updateByCondtion(BaseObject data, BaseObject condition) {
-        //assetInit();
-        String camelName = NameUtils.getCamelName(tableInfo.getPkName());
-        Map<String, Object> paramMap = new HashMap<String, Object>();
-        tableInfo.setMapperList(tableInfo.getMapperForAllList());
-        tableInfo.setConditon(tableInfo.getMapperForAllList());
-        paramMap.put("tbl", tableInfo);
-        String template = parseSqlTemplate("update", paramMap);
-        log.debug("{}", template);
-        Connection conn = getConn(template);
-        try {
-            return conn.createQuery(template).bind(data).bind(condition).executeUpdate().getResult();
+            return conn.createQuery(sql).executeUpdate().getResult();
         } finally {
             close(conn);
         }
     }
-
-    @Override
-    public int updateIgnoreEmpty(BaseObject dto) {
-        //assetInit();
-        return update(dto);
-    }
-
-    @Override
-    public int updateByConditionIgnoreEmpty(BaseObject data, BaseObject condition) {
-        //assetInit();
-        String camelName = NameUtils.getCamelName(tableInfo.getPkName());
-        Map<String, Object> paramMap = new HashMap<String, Object>();
-        tableInfo.setMapperList(TableUtils.getMapper(tableInfo.getPojoClass(), data));
-        tableInfo.setConditon(TableUtils.getMapper(tableInfo.getPojoClass(), condition));
-        paramMap.put("tbl", tableInfo);
-        String template = parseSqlTemplate("update", paramMap);
-        log.debug("{}", template);
-        Connection conn = getConn(template);
-        try {
-            return conn.createQuery(template).bind(data).bind(condition).executeUpdate().getResult();
-        } finally {
-            close(conn);
-        }
-
-
-    }
-
-    @Override
+    
     public T findById(Object id) {
-        //assetInit();
-        List<Object> list = new ArrayList<>();
-        list.add(id);
-        Map<String, Object> paramMap = new HashMap<String, Object>();
-        paramMap.put("ids", list);
-        paramMap.put("tbl", tableInfo);
-        String template = parseSqlTemplate("findByIds", paramMap);
-        log.debug("{}", template);
-        List lists = returnList(template, null);
-        return (T) filterMuilt(lists);
+        String sql = "";
+        QueryModel queryModel = new QueryModel().setTable(tableInfo.getTblName()).setFileSet(tableInfo.getMapping().keySet());
+        if(id instanceof String){
+            sql = queryModel.equal(tableInfo.getPkName(), id.toString()).getSql();
+        }else{
+            sql = queryModel.criteria(tableInfo.getPkName() + "=" + id).getSql();
+        }
+        log.debug(sql);
+        Connection conn = BaseUtils.getConn(sql);
+        try {
+            Query query = conn.createQuery(sql);
+            return query.setColumnMappings(tableInfo.getMapping()).executeAndFetchFirst(tableInfo.getPojo());
+        }finally {
+            close(conn);
+        }
     }
 
-    @Override
+    
     public List<T> findByIds(List ids) {
         //assetInit();
         Map<String, Object> paramMap = new HashMap<String, Object>();
@@ -540,20 +285,20 @@ public abstract class BaseMapper<T extends BaseObject> implements IBaseDAO, Seri
         return getListObject(template);
     }
 
-    @Override
-    public T queryForBaseObject(BaseObject dto) {
+    
+    public T queryForBaseObject(T t) {
         //assetInit();
         Map<String, Object> paramMap = new HashMap<String, Object>();
-        tableInfo.setMapperList(TableUtils.getMapper(tableInfo.getPojoClass(), dto));
+        tableInfo.setMapperList(TableUtils.getMapper(tableInfo.getPojoClass(), t));
         paramMap.put("tbl", tableInfo);
         String template = parseSqlTemplate("query", paramMap);
         log.debug("{}", template);
-        List list = returnList(template, dto);
+        List list = returnList(template, t);
         return (T) filterMuilt(list);
     }
 
-    @Override
-    public T queryForBaseObjectByCriteria(String criteria) {
+    
+    public T objectByCriteria(String criteria) {
         //assetInit();
         Map<String, Object> paramMap = new HashMap<String, Object>();
         tableInfo.setMapperList(new ArrayList<>());
@@ -567,7 +312,7 @@ public abstract class BaseMapper<T extends BaseObject> implements IBaseDAO, Seri
         return (T) filterMuilt(list);
     }
 
-    private List returnList(String template, BaseObject dto) {
+    private List returnList(String template, BaseModel dto) {
         Connection conn = getConn(template);
         try {
             Query query = conn.createQuery(template);
@@ -589,7 +334,7 @@ public abstract class BaseMapper<T extends BaseObject> implements IBaseDAO, Seri
     ;
 
 
-    @Override
+    
     public List query() {
         //assetInit();
         String template = "select * from " + tableInfo.getTblName();
@@ -610,7 +355,7 @@ public abstract class BaseMapper<T extends BaseObject> implements IBaseDAO, Seri
         }
     }
 
-    /**
+    *//**
      * 支持mysql及oracle
      *
      * @param pojoOrMap
@@ -618,23 +363,23 @@ public abstract class BaseMapper<T extends BaseObject> implements IBaseDAO, Seri
      * @param limit
      * @param order
      * @return
-     */
-    @Override
+     *//*
+    
     public List query(Object pojoOrMap, int begin, int limit, String order) {
         return query(pojoOrMap, null, begin, limit, order);
     }
 
-    @Override
+    
     public List query(Object pojoOrMap, String order) {
         return query(pojoOrMap, 0, 0, order);
     }
 
-    @Override
+    
     public List query(Object pojoOrMap, String criteria, String order) {
         return query(pojoOrMap, criteria, 0, 0, order);
     }
 
-    @Override
+    
     public List<T> query(Object pojoOrMap, String criteria, int begin, int limit, String order) {
         //assetInit();
         BaseObject baseObject = null;
@@ -689,22 +434,22 @@ public abstract class BaseMapper<T extends BaseObject> implements IBaseDAO, Seri
         }
     }
 
-    @Override
+    
     public Integer queryCount(Object dto) {
         //assetInit();
         return queryCount(dto, null);
     }
 
-    @Override
+    
     public Integer queryCount(Object beanOrMap, String criteria) {
         //assetInit();
-        BaseObject dto;
+        T dto;
         if(beanOrMap == null){
             dto = null;
         } else if (beanOrMap instanceof BaseObject) {
-            dto = (BaseObject) beanOrMap;
+            dto = (T) beanOrMap;
         } else if (beanOrMap instanceof Map) {
-            dto = toConvertion((Map) beanOrMap);
+            dto = (T) toConvertion((T) beanOrMap);
         } else if (beanOrMap != null) {
             log.error("beanOrMap Only to inherit the object of BasicObject or Map");
             throw new BaseRuntimeException();
@@ -738,7 +483,7 @@ public abstract class BaseMapper<T extends BaseObject> implements IBaseDAO, Seri
         }
     }
 
-    @Override
+    
     public int executeUpdate(String sqlTemplate, Map argsMap) {
         //assetInit();
         if (StringUtils.isBlank(sqlTemplate)) {
@@ -758,23 +503,23 @@ public abstract class BaseMapper<T extends BaseObject> implements IBaseDAO, Seri
         }
     }
 
-    @Override
+    
     public List queryForListByBaseObject(String sqlTemplate, BaseObject args) {
         return queryForListByBaseObject(sqlTemplate, args, Map.class);
     }
 
-    @Override
+    
     public List queryForListByBaseObject(String sqlTemplate, BaseObject query, Class elementType) {
         Map<String, Object> paraMap = toConvertion(query);
         return queryForListByMap(sqlTemplate, paraMap, elementType);
     }
 
-    @Override
+    
     public List queryForListByMap(String sqlTemplate, Map queryMap) {
         return queryForListByMap(sqlTemplate, queryMap, Map.class);
     }
 
-    @Override
+    
     public List queryForListByMap(String sqlTemplate, Map queryMap, Class elementType) {
         //assetInit();
         if (StringUtils.isBlank(sqlTemplate)) {
@@ -805,24 +550,24 @@ public abstract class BaseMapper<T extends BaseObject> implements IBaseDAO, Seri
         }
     }
 
-    @Override
+    
     public T queryForBaseObject(String sqlTemplate, BaseObject query) {
         Map<String, Object> paraMap = toConvertion(query);
         return (T) queryForObject(sqlTemplate, paraMap, tableInfo.getPojoClass());
     }
 
-    @Override
+    
     public T queryForBaseObject(String sqlTemplate, Map queryMap) {
         return (T) queryForObject(sqlTemplate, queryMap, tableInfo.getPojoClass());
     }
 
-    @Override
+    
     public Object queryForObject(String sqlTemplate, BaseObject query, Class requiredType) {
         Map<String, Object> paraMap = toConvertion(query);
         return queryForObject(sqlTemplate, paraMap, requiredType);
     }
 
-    @Override
+    
     public Object queryForObject(String sqlTemplate, Map queryMap, Class requiredType) {
         //assetInit();
         if (StringUtils.isBlank(sqlTemplate)) {
@@ -854,8 +599,8 @@ public abstract class BaseMapper<T extends BaseObject> implements IBaseDAO, Seri
         }
     }
 
-    @Override
-    public List<T> queryByCriteria(String criteria) {
+    
+    public List<T> listByCriteria(String criteria) {
         //assetInit();
         Map<String, Object> paramMap = new HashMap();
         tableInfo.setMapperList(new ArrayList<>());
@@ -868,22 +613,22 @@ public abstract class BaseMapper<T extends BaseObject> implements IBaseDAO, Seri
         return returnList(template, null);
     }
 
-    @Override
+    
     public List<Map<String, Object>> queryByTpl(String sqlTemplate) {
         return queryByTpl(sqlTemplate, null, 0, 0);
     }
 
-    @Override
+    
     public List<Map<String, Object>> queryByTpl(String sqlTemplate, int begin, int limit) {
         return queryByTpl(sqlTemplate, null, begin, limit);
     }
 
-    @Override
+    
     public List<Map<String, Object>> queryByTpl(String sqlTemplate, Object paramObject) {
         return queryByTpl(sqlTemplate, paramObject, -1, -1);
     }
 
-    @Override
+    
     public List<Map<String, Object>> queryByTpl(String sqlTemplate, Object paramObject, int begin, int limit) {
         //assetInit();
         Map<String, Object> paramMap = new HashMap();
@@ -912,29 +657,29 @@ public abstract class BaseMapper<T extends BaseObject> implements IBaseDAO, Seri
         }
     }
 
-    @Override
+    
     public List<Map<String, Object>> queryByTpl(String sqlTemplate, Map paramMap) {
         return queryForListByTpl(sqlTemplate, paramMap, Map.class);
     }
 
 
-    @Override
+    
     public Object queryForBaseObjectByTpl(String sqlTemplate) {
         return queryForBaseObjectByTpl(sqlTemplate, null);
     }
 
-    @Override
+    
     public Object queryForBaseObjectByTpl(String sqlTemplate, Object paramObject) {
         return queryForObjectByTpl(sqlTemplate, paramObject, Map.class);
     }
 
-    @Override
+    
     public Object queryForObjectByTpl(String sqlTemplate, Object paramObject, Class requireType) {
         List list = queryForListByTpl(sqlTemplate, paramObject, requireType);
         return filterMuilt(list);
     }
 
-    @Override
+    
     public List queryForListByTpl(String sqlTemplate, Object paramObject, Class requireType) {
         return queryForListByTpl(sqlTemplate, paramObject, requireType, -1, -1);
     }
@@ -1003,21 +748,21 @@ public abstract class BaseMapper<T extends BaseObject> implements IBaseDAO, Seri
         return getSql2o(sql).open();
     }
 
-    /**
+    *//**
      * 初始化
-     */
+     *//*
     private void init() {
-        Boolean isExiste = false;
-        Boolean checkTable = true;
-        tableInfo = new TableInfo();
+        boolean isExiste = false;
+        boolean checkTable = true;
+        tableInfo = new TableInfo<T>();
         Table table = getClass().getAnnotation(Table.class);
         tableInfo.setTblName(table.table());
-        tableInfo.setPkName(table.pk());
-        tableInfo.setPojoClass(table.pojo());
         tableInfo.setFileMapper(table.fileMapper());
         List<scorpio.migrate.Column> columns = new ArrayList<>();
-        /** 添加映射表列结构*/
-        Field[] fields = table.pojo().getDeclaredFields();
+        *//** 添加映射表列结构*//*
+        Class tClass = (Class<T>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];
+        tableInfo.setPojo(tClass);
+        Field[] fields = tClass.getDeclaredFields();
         for (int i = 0; i < fields.length; i++) {
             Field f = fields[i];
             f.setAccessible(true);
@@ -1028,7 +773,7 @@ public abstract class BaseMapper<T extends BaseObject> implements IBaseDAO, Seri
             IdGenerator idGenerator = f.getAnnotation(IdGenerator.class);
             if (idGenerator != null) {
                 tableInfo.setGenerator(idGenerator.value());
-                /**自定义id生成*/
+                *//**自定义id生成*//*
                 if(idGenerator.value() == Generator.DEFINED){
                     try {
                         tableInfo.setIdDefined((IdDefined)idGenerator.idclass().newInstance());
@@ -1049,17 +794,14 @@ public abstract class BaseMapper<T extends BaseObject> implements IBaseDAO, Seri
             if (id != null) {
                 tableInfo.setPkName(columnName);
             }
-            tableInfo.getDbColumnList().add(columnName);
-            tableInfo.getDtoAllValueName().add(f.getName());
-            Mapper mapper = new Mapper(columnName, f.getName());
-            tableInfo.getMapperForAllList().add(mapper);
+            tableInfo.getMapping().put(columnName, f.getName());
             if (BaseUtils.getBuilder().getCreate()) {
                 if(checkTable){
                     isExiste = Execute.tableExists(table.table());
                     checkTable = false;
                 }
                 if(!isExiste){
-                    createColumn(table, columns, f, idGenerator, columnAnnotation, columnName, id);
+                    createColumn(columns, f, idGenerator, columnAnnotation, columnName, id);
                 }
             }
         }
@@ -1073,10 +815,10 @@ public abstract class BaseMapper<T extends BaseObject> implements IBaseDAO, Seri
 
     }
 
-    private void createColumn(Table table, List<scorpio.migrate.Column> columns, Field f, IdGenerator idGenerator, Column columnAnnotation, String columnName, Id id) {
-        Boolean primaryKey = false;
-        Boolean autoincrement = false;
-        if (StringUtils.equals(table.pk(), columnName) || id != null) {
+    private void createColumn(List<scorpio.migrate.Column> columns, Field f, IdGenerator idGenerator, Column columnAnnotation, String columnName, Id id) {
+        boolean primaryKey = false;
+        boolean autoincrement = false;
+        if (id != null) {
             primaryKey = true;
 
         }
@@ -1089,7 +831,7 @@ public abstract class BaseMapper<T extends BaseObject> implements IBaseDAO, Seri
         int type = Types.VARCHAR;
         if (columnAnnotation != null) {
             String columnDefined = columnAnnotation.columnDefined();
-            Boolean nullable = columnAnnotation.nullable();
+            boolean nullable = columnAnnotation.nullable();
             type = columnAnnotation.type();
             int length = columnAnnotation.length();
             String describe = columnAnnotation.describe();
@@ -1110,9 +852,9 @@ public abstract class BaseMapper<T extends BaseObject> implements IBaseDAO, Seri
         }
     }
 
-    /**
+    *//**
      * 是否初始化
-     */
+     *//*
     private void assetInit() {
         if (isInit.compareAndSet(1, 2)) {
             init();
@@ -1143,7 +885,7 @@ public abstract class BaseMapper<T extends BaseObject> implements IBaseDAO, Seri
                 path = getClass().getSimpleName() + ".sqlmap";
                 url = getClass().getResource(path);
             }
-            /** 获取sqlmap 文件url */
+            *//** 获取sqlmap 文件url *//*
             if (url == null) {
                 log.debug("{}", " no sqlmapping file find! ");
                 return new HashMap<String, String>();
@@ -1166,13 +908,13 @@ public abstract class BaseMapper<T extends BaseObject> implements IBaseDAO, Seri
             }
 
             if (lastModifyTime == null) {
-                /** 初始化加载sqlmap */
+                *//** 初始化加载sqlmap *//*
                 SqlMapUtils.loadSqlMap(url, in);
                 lastModifyTime = new AtomicLong(currentLastmodify);
 
             } else {
                 if (currentLastmodify > 0 && currentLastmodify != lastModifyTime.longValue()) {
-                    /** sqlmap 有更新，需重新加载 */
+                    *//** sqlmap 有更新，需重新加载 *//*
                     SqlMapUtils.loadSqlMap(url, in);
                     lastModifyTime = new AtomicLong(currentLastmodify);
                 }
@@ -1187,7 +929,7 @@ public abstract class BaseMapper<T extends BaseObject> implements IBaseDAO, Seri
         return this.sqlMap;
     }
 
-  /*  private void loadSqlMap(URL url, InputStream fo) {
+  *//*  private void loadSqlMap(URL url, InputStream fo) {
         Map<String, String> tempUserSqlMap = new HashMap<String, String>();
         try {
             char[] chars = IOUtils.toCharArray(fo, "UTF-8");
@@ -1236,11 +978,11 @@ public abstract class BaseMapper<T extends BaseObject> implements IBaseDAO, Seri
         }
         this.sqlMap = tempUserSqlMap;
         tempUserSqlMap = null;
-    }*/
+    }*//*
 
-    /**
+    *//**
      * 解析sqlTemplate
-     */
+     *//*
     private String parseSqlTemplate(String sqlTemplate, Map paramMap) {
         return ParseTpl.parseSqlTemplate(sqlTemplate, paramMap);
     }
@@ -1256,13 +998,13 @@ public abstract class BaseMapper<T extends BaseObject> implements IBaseDAO, Seri
 
     }
 
-    /**
+    *//**
      * 链接关闭
      *
      * @param conn
-     */
+     *//*
     private void close(Connection conn) {
-        /** 不在事务中的时候才手动关闭 */
+        *//** 不在事务中的时候才手动关闭 *//*
         if (BaseUtils.connectionThreadLocal.get() == null) {
             if (conn != null) {
                 conn.close();
@@ -1270,15 +1012,15 @@ public abstract class BaseMapper<T extends BaseObject> implements IBaseDAO, Seri
         }
     }
 
-    private InputStream getTestDataInputStream(List<? extends BaseObject> list, List dtoAllValueName) {
+    private InputStream getTestDataInputStream(List<T> list, List dtoAllValueName) {
         StringBuilder builder = new StringBuilder();
         Object last = dtoAllValueName.get(dtoAllValueName.size() - 1);
-        for (BaseObject object : list) {
+        for (T t : list) {
             for (Object fName : dtoAllValueName) {
                 try {
-                    Field field = object.getClass().getField(fName + "");
+                    Field field = t.getClass().getField(fName + "");
                     field.setAccessible(true);
-                    Object o = field.get(object);
+                    Object o = field.get(t);
                     builder.append(o + "");
                     if (!(last + "").equals(o + "")) {
                         builder.append("\t");
@@ -1297,14 +1039,14 @@ public abstract class BaseMapper<T extends BaseObject> implements IBaseDAO, Seri
         return is;
     }
 
-    /**
+    *//**
      * mysql 高效插入方法方法 需要引入mysql驱动
      *
      * @param loadDataSql
      * @param dataStream
      * @return
      * @throws SQLException
-     */
+     *//*
     private int bulkLoadFromInputStream(String loadDataSql, InputStream dataStream) throws SQLException {
         if (dataStream == null) {
             log.info("InputStream is null ,No data is imported");
@@ -1334,5 +1076,5 @@ public abstract class BaseMapper<T extends BaseObject> implements IBaseDAO, Seri
             }
         }
         return 0;
-    }
+    }*/
 }

@@ -8,11 +8,8 @@ import java.lang.annotation.Target;
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Table {
-    String table();
 
-    String pk() default "id";
-
-    Class pojo();
+    String table() default "";;
 
     String fileMapper() default "";
 }

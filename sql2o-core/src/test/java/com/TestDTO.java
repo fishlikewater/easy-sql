@@ -3,12 +3,12 @@ package com;
 import scorpio.annotation.Column;
 import scorpio.annotation.IdGenerator;
 import scorpio.annotation.Transient;
-import scorpio.core.BaseObject;
+import scorpio.core.BaseModel;
 import scorpio.core.Generator;
 
 import java.sql.Types;
 
-public class TestDTO implements BaseObject{
+public class TestDTO extends BaseModel {
     @IdGenerator(value = Generator.DEFINED, idclass = MyIdFactory.class)
     private String aId;
 

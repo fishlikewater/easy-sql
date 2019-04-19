@@ -1,6 +1,7 @@
 package scorpio.core;
 
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.sql2o.Connection;
 import org.sql2o.Query;
@@ -8,7 +9,7 @@ import org.sql2o.Sql2o;
 import scorpio.BaseUtils;
 import scorpio.annotation.Column;
 import scorpio.annotation.Id;
-import scorpio.annotation.Mapping;
+import scorpio.annotation.Table;
 import scorpio.annotation.Transient;
 import scorpio.utils.NameUtils;
 import scorpio.utils.SqlMapUtils;
@@ -41,12 +42,13 @@ public abstract class BaseModel<T extends BaseModel> {
     @Transient
     private Class<T> tClass;
     @Transient
+    @Getter
     private String idName;
 
     @Transient
     protected Sql2o sql2o;
     @Transient
-    private AtomicInteger isInit = new AtomicInteger(1);
+    protected AtomicInteger isInit = new AtomicInteger(1);
 
     protected BaseModel(){
         assetInit();
@@ -63,7 +65,11 @@ public abstract class BaseModel<T extends BaseModel> {
         String sql = queryModel.getCountSql();
         log.debug(sql);
         Connection conn = BaseUtils.getConn(sql);
-        return conn.createQuery(sql).executeScalar(Integer.class);
+        try {
+            return conn.createQuery(sql).executeScalar(Integer.class);
+        }finally {
+            close(conn);
+        }
     }
 
     /**
@@ -73,8 +79,27 @@ public abstract class BaseModel<T extends BaseModel> {
     public Object save(){
         String sql = new InsertModel().setTable(table).setMapping(mapping).getSql();
         log.debug(sql);
-        Query query = BaseUtils.getConn(sql).createQuery(sql);
-        return query.bind(this).executeUpdate().getKey();
+        Connection conn = BaseUtils.getConn(sql);
+        try {
+            return conn.createQuery(sql).bind(this).executeUpdate().getKey();
+        }finally {
+            close(conn);
+        }
+    }
+
+    /**
+     * 保存对象
+     * @return
+     */
+    public Object saveIgnoreId(){
+        String sql = new InsertModel().setIdName(idName).setIgnoreId(true).setTable(table).setMapping(mapping).getSql();
+        log.debug(sql);
+        Connection conn = BaseUtils.getConn(sql);
+        try {
+            return conn.createQuery(sql).bind(this).executeUpdate().getKey();
+        }finally {
+            close(conn);
+        }
     }
 
     /**
@@ -83,8 +108,13 @@ public abstract class BaseModel<T extends BaseModel> {
      * @return 查询list集合
      */
     public <V> List<V> list(QueryModel queryModel, Class<V> v){
-
-        return getQuery(queryModel).setColumnMappings(mapping).executeAndFetch(v);
+        String sql = getQuery(queryModel);
+        Connection conn = BaseUtils.getConn(sql);
+        try{
+            return conn.createQuery(sql).setColumnMappings(mapping).executeAndFetch(v);
+        }finally {
+            close(conn);
+        }
     }
 
     /**
@@ -93,8 +123,13 @@ public abstract class BaseModel<T extends BaseModel> {
      * @return 单个对象
      */
     public <V> V object(QueryModel queryModel, Class<V> v){
-
-        return getQuery(queryModel).setColumnMappings(mapping).executeAndFetchFirst(v);
+        String sql = getQuery(queryModel);
+        Connection conn = BaseUtils.getConn(sql);
+        try{
+            return conn.createQuery(sql).setColumnMappings(mapping).executeAndFetchFirst(v);
+        }finally {
+            close(conn);
+        }
     }
 
 
@@ -111,8 +146,13 @@ public abstract class BaseModel<T extends BaseModel> {
             sql = initQueryModel().criteria(idName + "=" + id).getSql();
         }
         log.debug(sql);
-        Query query = BaseUtils.getConn(sql).createQuery(sql);
-        return query.setColumnMappings(mapping).executeAndFetchFirst(tClass);
+        Connection conn = BaseUtils.getConn(sql);
+        try {
+            Query query = conn.createQuery(sql);
+            return query.setColumnMappings(mapping).executeAndFetchFirst(tClass);
+        }finally {
+            close(conn);
+        }
     }
 
     /**
@@ -129,8 +169,13 @@ public abstract class BaseModel<T extends BaseModel> {
             sql = updateModel.criteria(idName + "=" + id).getDeleteSql();
         }
         log.debug(sql);
-        Query query = BaseUtils.getConn(sql).createQuery(sql);
-        return query.executeUpdate().getResult();
+        Connection conn = BaseUtils.getConn(sql);
+        try {
+            Query query = conn.createQuery(sql);
+            return query.executeUpdate().getResult();
+        }finally {
+            close(conn);
+        }
     }
 
     /**
@@ -139,8 +184,13 @@ public abstract class BaseModel<T extends BaseModel> {
      * @return 查询list集合
      */
     public List<T> list(QueryModel queryModel){
-
-        return  getQuery(queryModel).setColumnMappings(mapping).executeAndFetch(tClass);
+        String sql = getQuery(queryModel);
+        Connection conn = BaseUtils.getConn(sql);
+        try{
+            return conn.createQuery(sql).setColumnMappings(mapping).executeAndFetch(tClass);
+        }finally {
+            close(conn);
+        }
     }
 
     /**
@@ -149,8 +199,13 @@ public abstract class BaseModel<T extends BaseModel> {
      * @return 查询list集合
      */
     public List<Map<String, Object>> maps(QueryModel queryModel){
-
-        return  getQuery(queryModel).executeAndFetchTable().asList();
+        String sql = getQuery(queryModel);
+        Connection conn = BaseUtils.getConn(sql);
+        try{
+            return conn.createQuery(sql).executeAndFetchTable().asList();
+        }finally {
+            close(conn);
+        }
     }
 
     /**
@@ -159,8 +214,13 @@ public abstract class BaseModel<T extends BaseModel> {
      * @return 单个对象
      */
     public T object(QueryModel queryModel){
-
-        return getQuery(queryModel).setColumnMappings(mapping).executeAndFetchFirst(tClass);
+        String sql = getQuery(queryModel);
+        Connection conn = BaseUtils.getConn(sql);
+        try{
+            return conn.createQuery(sql).setColumnMappings(mapping).executeAndFetchFirst(tClass);
+        }finally {
+            close(conn);
+        }
     }
 
     /**
@@ -169,18 +229,44 @@ public abstract class BaseModel<T extends BaseModel> {
      * @return map对象
      */
     public Map map(QueryModel queryModel){
-
-        return getQuery(queryModel).executeAndFetchFirst(Map.class);
+        String sql = getQuery(queryModel);
+        Connection conn = BaseUtils.getConn(sql);
+        try{
+            return conn.createQuery(sql).executeAndFetchFirst(Map.class);
+        }finally {
+            close(conn);
+        }
     }
 
+    /**
+     *  update操作
+     * @param updateModel 更新条件构造
+     * @return 更新数量
+     */
     public int update(UpdateModel updateModel){
-
-        return getUpdateQuery(updateModel).executeUpdate().getResult();
+        String sql = getUpdateQuery(updateModel);
+        Connection conn = BaseUtils.getConn(sql);
+        try{
+            return conn.createQuery(sql).executeUpdate().getResult();
+        }finally {
+            close(conn);
+        }
     }
 
-    public int delete(UpdateModel updateModel){
+    /**
+     *  delete操作
+     * @param updateModel 删除条件构造
+     * @return 删除数量
+     */
+    public int remove(UpdateModel updateModel){
+        String sql = getDeleteQuery(updateModel);
+        Connection conn = BaseUtils.getConn(sql);
+        try{
+            return conn.createQuery(sql).executeUpdate().getResult();
+        }finally {
+            close(conn);
+        }
 
-        return getDeleteQuery(updateModel).executeUpdate().getResult();
     }
 
 
@@ -189,7 +275,7 @@ public abstract class BaseModel<T extends BaseModel> {
         return  new QueryModel().setTable(table).setFileSet(mapping.keySet());
     }
 
-    private Query getQuery(QueryModel queryModel){
+    private String getQuery(QueryModel queryModel){
         if(queryModel.isUseTpl()){
             queryModel.setSqlTemplate(this.sqlMap.get(queryModel.getTemplateName()));
         }
@@ -197,42 +283,56 @@ public abstract class BaseModel<T extends BaseModel> {
         queryModel.setTable(table);
         String sql = queryModel.getSql();
         log.debug(sql);
-        Connection conn = BaseUtils.getConn(sql);
-        return conn.createQuery(sql);
+        return sql;
     }
 
-    private Query getUpdateQuery(UpdateModel updateModel){
+    private String getUpdateQuery(UpdateModel updateModel){
         if(updateModel.isUseTpl()){
             updateModel.setSqlTemplate(this.sqlMap.get(updateModel.getTemplateName()));
         }
         updateModel.setTable(table);
         String sql = updateModel.getUpdateSql();
         log.debug(sql);
-        Connection conn = BaseUtils.getConn(sql);
-        return conn.createQuery(sql);
+        return sql;
     }
 
-    private Query getDeleteQuery(UpdateModel updateModel){
+    private String getDeleteQuery(UpdateModel updateModel){
         if(updateModel.isUseTpl()){
             updateModel.setSqlTemplate(this.sqlMap.get(updateModel.getTemplateName()));
         }
         updateModel.setTable(table);
         String sql = updateModel.getDeleteSql();
         log.debug(sql);
-        Connection conn = BaseUtils.getConn(sql);
-        return conn.createQuery(sql);
+        return sql;
+    }
+
+    /**
+     * 释放链接
+     *
+     * @param conn
+     */
+    private void close(Connection conn) {
+        /** 不在事务中的时候才手动关闭 */
+        if (BaseUtils.connectionThreadLocal.get() == null) {
+            if (conn != null) {
+                conn.close();
+            }
+        }
     }
 
     /**
      * 是否初始化
      */
-    private void assetInit() {
+    protected void assetInit() {
+        if(!BaseUtils.getBuilder().getActiveRecord()){
+            return;
+        }
         if (isInit.compareAndSet(1, 2)) {
             init();
         }
     }
 
-    private void init(){
+    protected void init(){
         Class<? extends BaseModel> aClass = getClass();
         Field[] declaredFields = aClass.getDeclaredFields();
         for (Field declaredField : declaredFields) {
@@ -254,29 +354,29 @@ public abstract class BaseModel<T extends BaseModel> {
                 mapping.put(NameUtils.getUnderlineName(declaredField.getName()), declaredField.getName());
             }
         }
-        this.table = NameUtils.getUnderlineName(aClass.getSimpleName());
         tClass = (Class<T>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];
+        this.table = NameUtils.getUnderlineName(tClass.getSimpleName());
         loadSqlMap();
     }
 
 
-    private void loadSqlMap(){
+    protected void loadSqlMap(){
         String path = "";
         Map<String, String> sqlCahceMap = SqlMapUtils.getSqlCahceMap(tClass.getSimpleName());
         if(sqlCahceMap != null && !BaseUtils.getBuilder().getDev()){
             this.sqlMap.putAll(sqlCahceMap);
         }else{
-            Mapping mapping = tClass.getAnnotation(Mapping.class);
+            Table tbl = tClass.getAnnotation(Table.class);
             if(mapping != null){
-                String table = mapping.table();
+                String table = tbl.table();
                 if(StringUtils.isNotBlank(table)){
                     this.table = table;
                 }
-                if(StringUtils.isNotBlank(mapping.fileMapper())){
-                    if(mapping.fileMapper().endsWith(".sqlmap")){
-                        path = mapping.fileMapper();
+                if(StringUtils.isNotBlank(tbl.fileMapper())){
+                    if(tbl.fileMapper().endsWith(".sqlmap")){
+                        path = tbl.fileMapper();
                     }else{
-                        path = mapping.fileMapper() + File.separator + tClass.getSimpleName() + ".sqlmap";
+                        path = tbl.fileMapper() + File.separator + tClass.getSimpleName() + ".sqlmap";
                     }
 
                 }else{
@@ -286,7 +386,7 @@ public abstract class BaseModel<T extends BaseModel> {
                 path = tClass.getSimpleName() + ".sqlmap";
             }
             Map<String, String> sqlMap = SqlMapUtils.getSqlMap(path, tClass);
-            this.sqlMap = sqlMap;
+            this.sqlMap.putAll(sqlMap);
             SqlMapUtils.cacheSqlMap(tClass.getSimpleName(), sqlMap);
         }
     }

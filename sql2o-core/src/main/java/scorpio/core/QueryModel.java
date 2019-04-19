@@ -37,8 +37,11 @@ public class QueryModel {
         sql.append("select count(*) ");
         sql.append("from ");
         sql.append(table).append(" ");
-        sql.append("where ");
-        return sql.append(queryStr).toString();
+        if(queryStr.length() != 0){
+            sql.append("where ");
+            return sql.append(queryStr).toString();
+        }
+        return sql.toString();
     }
 
     /**

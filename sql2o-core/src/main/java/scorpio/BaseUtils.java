@@ -45,6 +45,10 @@ public final class BaseUtils {
     @Accessors(chain = true)
     private Boolean openReadyAndWrite = false;
 
+    @Setter
+    @Accessors(chain = true)
+    private Boolean activeRecord = false;
+
     private static final BaseUtils builder = new BaseUtils();
 
     public static BaseUtils getBuilder(){
