@@ -31,8 +31,10 @@ public class JdbcTest {
     @Test
     public void testModel(){
         ResourcesMapper mapper = new ResourcesMapper();
-        Integer count = mapper.count(new QueryModel());
-        System.out.println(count);
+        Map map = mapper.map(new QueryModel());
+        System.out.println(map);
+  //     Integer count = mapper.count(new QueryModel());
+  //      System.out.println(count);
 //        long t1 = System.currentTimeMillis();
 //        Integer queryCount = resources.object(new QueryModel().tpl("queryCount", null), Integer.class);
 //        System.out.println(queryCount);

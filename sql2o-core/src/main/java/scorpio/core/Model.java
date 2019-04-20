@@ -10,6 +10,7 @@ import scorpio.annotation.Column;
 import scorpio.annotation.Id;
 import scorpio.annotation.Table;
 import scorpio.annotation.Transient;
+import scorpio.exception.BaseRuntimeException;
 import scorpio.utils.NameUtils;
 import scorpio.utils.SqlMapUtils;
 import scorpio.utils.StringUtils;
@@ -178,11 +179,7 @@ public abstract class Model<T> {
         String sql = getQuery(queryModel);
         Connection conn = BaseUtils.getConn(sql);
         try{
-            Query query = conn.createQuery(sql);
-            if(queryModel.mappings != null){
-                query.setColumnMappings(queryModel.mappings);
-            }
-            return query.executeAndFetchTable().asList();
+            return conn.createQuery(sql).executeAndFetchTable().asList();
         }finally {
             close(conn);
         }
@@ -209,16 +206,13 @@ public abstract class Model<T> {
      * @return map对象
      */
     public Map map(QueryModel queryModel){
-        String sql = getQuery(queryModel);
-        Connection conn = BaseUtils.getConn(sql);
-        try{
-            Query query = conn.createQuery(sql);
-            if(queryModel.mappings != null){
-                query.setColumnMappings(queryModel.mappings);
-            }
-            return query.executeAndFetchFirst(Map.class);
-        }finally {
-            close(conn);
+        List<Map<String, Object>> maps = maps(queryModel);
+        if(maps.size() >1){
+            throw new BaseRuntimeException("期望返回一条数据，实际查询到多条");
+        }else if(maps.size() == 1){
+            return maps.get(0);
+        }else{
+            return new HashMap();
         }
     }
 
