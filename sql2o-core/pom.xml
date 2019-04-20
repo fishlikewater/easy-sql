@@ -85,18 +85,18 @@
             <version>${commons-lang-version}</version>
         </dependency>
 
-        <dependency>
+       <!-- <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
             <version>${mysql.version}</version>
             <optional>true</optional>
-        </dependency>
+        </dependency>-->
         <!--工具包-->
-        <dependency>
+       <!-- <dependency>
             <groupId>cn.hutool</groupId>
             <artifactId>hutool-core</artifactId>
             <version>${hutool-version}</version>
-        </dependency>
+        </dependency>-->
 <!--
 
         <dependency>

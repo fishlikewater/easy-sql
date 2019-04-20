@@ -17,20 +17,6 @@ public class UUIDUtils {
     /**
      * 生成指定长度的uuid
      */
-    private static String getUUID(int length, UUID uuid) {
-        int groupLength = 32 / length;
-        StringBuilder sb = new StringBuilder();
-        String id = uuid.toString().replace("-", "");
-        for (int i = 0; i < length; i++) {
-            String str = id.substring(i * groupLength, i * groupLength + groupLength);
-            int x = Integer.parseInt(str, 16);
-            sb.append(chars[x % 0x3E]);
-        }
-        return sb.toString();
-    }
-    /**
-     * 生成指定长度的uuid
-     */
     public static String getUUID(int length) {
         int groupLength = 32 / length;
         StringBuilder sb = new StringBuilder();
@@ -46,7 +32,7 @@ public class UUIDUtils {
      * 16位UUID
      */
     public static String getUUID16() {
-        return getUUID(16, UUID.randomUUID());
+        return getUUID(16);
     }
 
     public static String get() {

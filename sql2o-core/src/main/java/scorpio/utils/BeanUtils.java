@@ -1,3 +1,4 @@
+/*
 package scorpio.utils;
 
 import cn.hutool.core.bean.BeanUtil;
@@ -14,13 +15,15 @@ import java.util.Map;
 
 public class BeanUtils {
 
-    /**
+    */
+/**
      * map转换为对象(这里将数据库中下划线字段转为驼峰形式)
      * @param map
      * @param beanClass
      * @return
      * @throws Exception
-     */
+     *//*
+
     public static Object mapToObject(Map<String, Object> map, Class<?> beanClass) throws Exception {
         if (map == null)
             return null;
@@ -39,12 +42,14 @@ public class BeanUtils {
         return obj;
     }
 
-    /**
+    */
+/**
      * 对象转换为map
      * @param obj
      * @return
      * @throws Exception
-     */
+     *//*
+
     public static Map<String, Object> objectToMap(Object obj) throws Exception {
         if(obj == null)
             return null;
@@ -67,11 +72,13 @@ public class BeanUtils {
     }
 
 
-    /**
+    */
+/**
      * 将对象装换为map
      * @param bean
      * @return
-     */
+     *//*
+
     public static <T> Map<String, Object> beanToMap(T bean) {
         Map<String, Object> map = new HashMap<>();
         if (bean != null) {
@@ -83,12 +90,14 @@ public class BeanUtils {
         return map;
     }
 
-    /**
+    */
+/**
      * 将map装换为javabean对象
      * @param map
      * @param bean
      * @return
-     */
+     *//*
+
     public static <T> T mapToBean(Map<String, Object> map,T bean) {
         if(map == null){
             return null;
@@ -98,11 +107,13 @@ public class BeanUtils {
         return bean;
     }
 
-    /**
+    */
+/**
      * 将List<T>转换为List<Map<String, Object>>
      * @param objList
      * @return
-     */
+     *//*
+
     public static <T> List<Map<String, Object>> objectsToMaps(List<T> objList) {
         List<Map<String, Object>> list = new ArrayList<>();
         if (objList != null && objList.size() > 0) {
@@ -117,14 +128,16 @@ public class BeanUtils {
         return list;
     }
 
-    /**
+    */
+/**
      * 将List<Map<String,Object>>转换为List<T>
      * @param maps
      * @param clazz
      * @return
      * @throws InstantiationException
      * @throws IllegalAccessException
-     */
+     *//*
+
     public static <T> List<T> mapsToObjects(List<Map<String, Object>> maps,Class<T> clazz) throws InstantiationException, IllegalAccessException {
         List<T> list = new ArrayList<>();
         if (maps != null && maps.size() > 0) {
@@ -140,11 +153,13 @@ public class BeanUtils {
         return list;
     }
 
-    /**
+    */
+/**
      * key转换驼峰
      * @param map
      * @return
-     */
+     *//*
+
     public static Map<String, Object> mapKeyCovertion(Map<String, Object> map){
         if(map == null){
             return null;
@@ -155,11 +170,13 @@ public class BeanUtils {
         return nMap;
     }
 
-    /**
+    */
+/**
      * 获取sql类型
      * @param clazz
      * @return
-     */
+     *//*
+
     public static int getSqlType(Class clazz){
         if(clazz.isAssignableFrom(Integer.class) || clazz.isAssignableFrom(int.class)){
 
@@ -174,3 +191,4 @@ public class BeanUtils {
 
 
 }
+*/

@@ -21,7 +21,6 @@ public class JdbcTest {
             Class.forName("org.sqlite.JDBC");
             // BaseUtils.open(url,"root", "ROOT");
             BaseUtils.getBuilder()
-                    .setCreate(true)
                     .setDev(false);
             BaseUtils.open("jdbc:sqlite:scorpio-jdbc.db", null, null);
         } catch (Exception e) {
