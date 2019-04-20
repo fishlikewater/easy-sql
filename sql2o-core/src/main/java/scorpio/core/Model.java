@@ -178,7 +178,11 @@ public abstract class Model<T> {
         String sql = getQuery(queryModel);
         Connection conn = BaseUtils.getConn(sql);
         try{
-            return conn.createQuery(sql).executeAndFetchTable().asList();
+            Query query = conn.createQuery(sql);
+            if(queryModel.mappings != null){
+                query.setColumnMappings(queryModel.mappings);
+            }
+            return query.executeAndFetchTable().asList();
         }finally {
             close(conn);
         }
@@ -208,7 +212,11 @@ public abstract class Model<T> {
         String sql = getQuery(queryModel);
         Connection conn = BaseUtils.getConn(sql);
         try{
-            return conn.createQuery(sql).executeAndFetchFirst(Map.class);
+            Query query = conn.createQuery(sql);
+            if(queryModel.mappings != null){
+                query.setColumnMappings(queryModel.mappings);
+            }
+            return query.executeAndFetchFirst(Map.class);
         }finally {
             close(conn);
         }
