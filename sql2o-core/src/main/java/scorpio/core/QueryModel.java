@@ -14,9 +14,11 @@ import java.util.*;
 @Accessors(chain = true)
 public class QueryModel {
 
-    private Set<String> fileSet = new HashSet<>();
+    private Set<String> filedSet = new HashSet<>();
 
     private List<String> selectList = new ArrayList<>();
+
+    protected Map<String, String> mappings = null;
 
     private StringBuffer queryStr = new StringBuffer();
 
@@ -62,7 +64,7 @@ public class QueryModel {
         StringBuffer sql = new StringBuffer();
         sql.append("select ");
         if(selectList.size() == 0){
-            fileSet.forEach(t->{
+            filedSet.forEach(t->{
                 sql.append(t);
                 sql.append(",");
             });
@@ -260,8 +262,24 @@ public class QueryModel {
         return this;
     }
 
-    public QueryModel setSelect(String... arg){
+    /**
+     * 自定义返回字段
+     * @param arg
+     * @return
+     */
+    public QueryModel elect(String... arg){
         this.selectList = Arrays.asList(arg);
+        return this;
+    }
+
+    /**
+     * 自定义返回字段映射
+     * @param mappings
+     * @return
+     */
+    public QueryModel columnMappings(Map<String, String> mappings){
+        this.mappings = new HashMap<>();
+        this.mappings.putAll(mappings);
         return this;
     }
 }

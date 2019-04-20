@@ -58,7 +58,7 @@ public abstract class Model<T> {
      * @return
      */
     public Integer count(QueryModel queryModel){
-        queryModel.setFileSet(mapping.keySet());
+        queryModel.setFiledSet(mapping.keySet());
         queryModel.setTable(table);
         String sql = queryModel.getCountSql();
         log.debug(sql);
@@ -79,7 +79,11 @@ public abstract class Model<T> {
         String sql = getQuery(queryModel);
         Connection conn = BaseUtils.getConn(sql);
         try{
-            return conn.createQuery(sql).setColumnMappings(mapping).executeAndFetch(v);
+            Query query = conn.createQuery(sql);
+            if(queryModel.mappings != null){
+                query.setColumnMappings(queryModel.mappings);
+            }
+            return query.executeAndFetch(v);
         }finally {
             close(conn);
         }
@@ -94,7 +98,11 @@ public abstract class Model<T> {
         String sql = getQuery(queryModel);
         Connection conn = BaseUtils.getConn(sql);
         try{
-            return conn.createQuery(sql).setColumnMappings(mapping).executeAndFetchFirst(v);
+            Query query = conn.createQuery(sql);
+            if(queryModel.mappings != null){
+                query.setColumnMappings(queryModel.mappings);
+            }
+            return query.executeAndFetchFirst(v);
         }finally {
             close(conn);
         }
@@ -240,14 +248,14 @@ public abstract class Model<T> {
 
     private QueryModel initQueryModel(){
 
-        return  new QueryModel().setTable(table).setFileSet(mapping.keySet());
+        return  new QueryModel().setTable(table).setFiledSet(mapping.keySet());
     }
 
     private String getQuery(QueryModel queryModel){
         if(queryModel.isUseTpl()){
             queryModel.setSqlTemplate(this.sqlMap.get(queryModel.getTemplateName()));
         }
-        queryModel.setFileSet(mapping.keySet());
+        queryModel.setFiledSet(mapping.keySet());
         queryModel.setTable(table);
         String sql = queryModel.getSql();
         log.debug(sql);
