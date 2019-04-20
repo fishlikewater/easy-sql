@@ -34,12 +34,12 @@ public class QueryModel {
 
     private Map<String, Object> argMap;
 
-    protected String getCountSql(){
+    protected String getCountSql() {
         StringBuffer sql = new StringBuffer();
         sql.append("select count(*) ");
         sql.append("from ");
         sql.append(table).append(" ");
-        if(queryStr.length() != 0){
+        if (queryStr.length() != 0) {
             sql.append("where ");
             return sql.append(queryStr).toString();
         }
@@ -48,54 +48,55 @@ public class QueryModel {
 
     /**
      * 获取sql
+     *
      * @return
      */
-    protected String getSql(){
-        if(useTpl){
-            if(sqlTemplate == null){
+    protected String getSql() {
+        if (useTpl) {
+            if (sqlTemplate == null) {
                 throw new IllegalArgumentException("sqlTemplate can't be empty");
             }
             String template = ParseTpl.parseSqlTemplate(sqlTemplate, argMap);
-            if(pageStr.length() != 0){
+            if (pageStr.length() != 0) {
                 template = template + pageStr;
             }
             return template;
         }
         StringBuffer sql = new StringBuffer();
         sql.append("select ");
-        if(selectList.size() == 0){
-            filedSet.forEach(t->{
+        if (selectList.size() == 0) {
+            filedSet.forEach(t -> {
                 sql.append(t);
                 sql.append(",");
             });
-            sql.deleteCharAt(sql.length()-1);
+            sql.deleteCharAt(sql.length() - 1);
             sql.append(" ");
-        }else{
+        } else {
             for (int i = 0; i < selectList.size(); i++) {
                 sql.append(selectList.get(i));
-                if(i != selectList.size()-1){
+                if (i != selectList.size() - 1) {
                     sql.append(",");
-                }else {
+                } else {
                     sql.append(" ");
                 }
             }
         }
         sql.append("from ");
         sql.append(table).append(" ");
-        if(queryStr.length() == 0){
+        if (queryStr.length() == 0) {
             return sql.append(pageStr).toString();
-        }else{
+        } else {
             sql.append("where ");
-            if(pageStr.length() == 0){
+            if (pageStr.length() == 0) {
                 return sql.append(queryStr).toString();
-            }else{
+            } else {
                 return sql.append(queryStr).append(pageStr).toString();
             }
         }
 
     }
 
-    public QueryModel tpl(String templateName, Map<String, Object> argMap){
+    public QueryModel tpl(String templateName, Map<String, Object> argMap) {
         this.useTpl = true;
         this.templateName = templateName;
         this.argMap = argMap;
@@ -104,18 +105,21 @@ public class QueryModel {
 
     /**
      * 添加like查询条件
+     *
      * @param column
      * @param value
      * @return
      */
-    public QueryModel like(String column, String value){
-        if(queryStr.length() != 0){
+    public QueryModel like(String column, String value) {
+        if (queryStr.length() != 0) {
             queryStr.append("and ");
         }
         queryStr
                 .append(column)
                 .append(" like ")
+                .append("'")
                 .append(value)
+                .append("'")
                 .append(" ");
 
         return this;
@@ -123,108 +127,144 @@ public class QueryModel {
 
     /**
      * 添加>=查询条件
+     *
      * @param column
      * @param value
      * @return
      */
-    public QueryModel lte(String column, int value){
-        if(queryStr.length() != 0){
+    public QueryModel lte(String column, Object value) {
+        if (queryStr.length() != 0) {
             queryStr.append("and ");
         }
         queryStr
                 .append(column)
-                .append("<=")
-                .append(value)
-                .append(" ");
+                .append("<=");
+        if (value instanceof String) {
+            queryStr.append("'")
+                    .append(value)
+                    .append("'");
+        } else {
+            queryStr.append(value);
 
+        }
+        queryStr.append(" ");
         return this;
     }
 
     /**
      * 添加< 查询条件
+     *
      * @param column
      * @param value
      * @return
      */
-    public QueryModel lt(String column, int value){
-        if(queryStr.length() != 0){
+    public QueryModel lt(String column, Object value) {
+        if (queryStr.length() != 0) {
             queryStr.append("and ");
         }
         queryStr
                 .append(column)
-                .append("<")
-                .append(value)
-                .append(" ");
+                .append("<");
+        if (value instanceof String) {
+            queryStr.append("'")
+                    .append(value)
+                    .append("'");
+        } else {
+            queryStr.append(value);
 
+        }
+        queryStr.append(" ");
         return this;
     }
 
     /**
      * 添加>=查询条件
+     *
      * @param column
      * @param value
      * @return
      */
-    public QueryModel gte(String column, int value){
-        if(queryStr.length() != 0){
+    public QueryModel gte(String column, Object value) {
+        if (queryStr.length() != 0) {
             queryStr.append("and ");
         }
         queryStr
                 .append(column)
-                .append(">=")
-                .append(value)
-                .append(" ");
+                .append(">=");
+        if (value instanceof String) {
+            queryStr.append("'")
+                    .append(value)
+                    .append("'");
+        } else {
+            queryStr.append(value);
 
+        }
+        queryStr.append(" ");
         return this;
     }
 
     /**
      * 添加>查询条件
+     *
      * @param column
      * @param value
      * @return
      */
-    public QueryModel gt(String column, int value){
-        if(queryStr.length() != 0){
+    public QueryModel gt(String column, Object value) {
+        if (queryStr.length() != 0) {
             queryStr.append("and ");
         }
         queryStr
                 .append(column)
-                .append(">")
-                .append(value)
-                .append(" ");
+                .append(">");
+        if (value instanceof String) {
+            queryStr.append("'")
+                    .append(value)
+                    .append("'");
+        } else {
+            queryStr.append(value);
+
+        }
+        queryStr.append(" ");
 
         return this;
     }
 
     /**
      * 添加=查询条件
+     *
      * @param column
      * @param value
      * @return
      */
-    public QueryModel equal(String column, String value){
-        if(queryStr.length() != 0){
+    public QueryModel equal(String column, Object value) {
+        if (queryStr.length() != 0) {
             queryStr.append("and ");
         }
         queryStr
                 .append(column)
-                .append("=")
-                .append("'")
-                .append(value)
-                .append("'")
-                .append(" ");
+                .append("=");
+        if (value instanceof String) {
+            queryStr.append("'")
+                    .append(value)
+                    .append("'");
+        } else {
+            queryStr.append(value);
+        }
+
+        queryStr.append(" ");
         return this;
     }
 
     /**
      * 添加in查询条件
+     *
      * @param column
      * @param arr
      * @return
      */
-    public QueryModel in(String column, String[] arr){
-        if(queryStr.length() != 0){
+    public QueryModel in(String column, Object[] arr) {
+        if (queryStr.length() != 0) {
             queryStr.append("and ");
         }
         queryStr
@@ -232,30 +272,35 @@ public class QueryModel {
                 .append(" in")
                 .append("(");
         for (int i = 0; i < arr.length; i++) {
-            queryStr.append("'").append(arr[i]).append("'");
-            if(i<arr.length-1){
+            if (arr[i] instanceof String) {
+                queryStr.append("'").append(arr[i]).append("'");
+            } else {
+                queryStr.append(arr[i]);
+            }
+            if (i < arr.length - 1) {
                 queryStr.append(",");
-            }else {
+            } else {
                 queryStr.append(")");
             }
-            
+
         }
         queryStr.append(" ");
         return this;
     }
 
-    public QueryModel page(int bedin, int limit){
+    public QueryModel page(int bedin, int limit) {
         pageStr.append("limit ").append(bedin).append(", ").append(limit);
-        return  this;
+        return this;
     }
 
     /**
-     *  添加自定义语句
+     * 添加自定义语句
+     *
      * @param sql 自定义sql
      * @return
      */
-    protected QueryModel criteria(String sql){
-        if(queryStr.length() != 0){
+    protected QueryModel criteria(String sql) {
+        if (queryStr.length() != 0) {
             queryStr.append("and ");
         }
         queryStr.append(sql).append(" ");
@@ -264,20 +309,22 @@ public class QueryModel {
 
     /**
      * 自定义返回字段
+     *
      * @param arg
      * @return
      */
-    public QueryModel elect(String... arg){
+    public QueryModel elect(String... arg) {
         this.selectList = Arrays.asList(arg);
         return this;
     }
 
     /**
      * 自定义返回字段映射
+     *
      * @param mappings
      * @return
      */
-    public QueryModel columnMappings(Map<String, String> mappings){
+    public QueryModel columnMappings(Map<String, String> mappings) {
         this.mappings = new HashMap<>();
         this.mappings.putAll(mappings);
         return this;
