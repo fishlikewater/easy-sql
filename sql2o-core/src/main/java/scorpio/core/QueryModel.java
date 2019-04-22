@@ -20,6 +20,8 @@ public class QueryModel {
 
     protected Map<String, String> mappings = null;
 
+    private String lastSql = "";
+
     private StringBuffer queryStr = new StringBuffer();
 
     private StringBuffer pageStr = new StringBuffer();
@@ -43,7 +45,7 @@ public class QueryModel {
             sql.append("where ");
             return sql.append(queryStr).toString();
         }
-        return sql.toString();
+        return sql.append(lastSql).toString();
     }
 
     /**
@@ -84,13 +86,13 @@ public class QueryModel {
         sql.append("from ");
         sql.append(table).append(" ");
         if (queryStr.length() == 0) {
-            return sql.append(pageStr).toString();
+            return sql.append(lastSql).append(pageStr).toString();
         } else {
             sql.append("where ");
             if (pageStr.length() == 0) {
-                return sql.append(queryStr).toString();
+                return sql.append(queryStr).append(lastSql).toString();
             } else {
-                return sql.append(queryStr).append(pageStr).toString();
+                return sql.append(queryStr).append(lastSql).append(pageStr).toString();
             }
         }
 
@@ -327,6 +329,16 @@ public class QueryModel {
     public QueryModel columnMappings(Map<String, String> mappings) {
         this.mappings = new HashMap<>();
         this.mappings.putAll(mappings);
+        return this;
+    }
+
+    /**
+     *  添加到最后
+     * @param sql
+     * @return
+     */
+    public QueryModel last(String sql){
+        this.lastSql = sql;
         return this;
     }
 }

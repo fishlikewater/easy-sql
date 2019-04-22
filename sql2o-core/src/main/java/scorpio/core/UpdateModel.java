@@ -47,7 +47,7 @@ public class UpdateModel{
         if(queryStr.length() != 0){
             deleteSql.append(" where").append(queryStr);
         }
-        return deleteSql.toString();
+        return deleteSql.append(queryModel.getLastSql()).toString();
     }
 
     public String getUpdateSql(){
@@ -65,7 +65,7 @@ public class UpdateModel{
         if(queryStr.length() != 0){
             updateSql.append(" where").append(queryStr);
         }
-        return updateSql.toString();
+        return updateSql.append(queryModel.getLastSql()).toString();
     }
 
     /**
@@ -193,7 +193,15 @@ public class UpdateModel{
         return this;
     }
 
-
+    /**
+     *  添加到最后
+     * @param sql
+     * @return
+     */
+    public UpdateModel last(String sql){
+        queryModel.last(sql);
+        return this;
+    }
 }
 
 
