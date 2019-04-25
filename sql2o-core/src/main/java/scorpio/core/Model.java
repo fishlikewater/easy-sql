@@ -15,7 +15,6 @@ import scorpio.utils.NameUtils;
 import scorpio.utils.SqlMapUtils;
 import scorpio.utils.StringUtils;
 
-import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.util.HashMap;
@@ -61,6 +60,9 @@ public abstract class Model<T> {
     public Integer count(QueryModel queryModel){
         queryModel.setFiledSet(mapping.keySet());
         queryModel.setTable(table);
+        if(queryModel.isUseTpl()){
+            queryModel.setSqlTemplate(this.sqlMap.get(queryModel.getTemplateName()));
+        }
         String sql = queryModel.getCountSql();
         log.debug(sql);
         Connection conn = BaseUtils.getConn(sql);
@@ -353,7 +355,7 @@ public abstract class Model<T> {
                     if(tbl.fileMapper().endsWith(".sqlmap")){
                         path = tbl.fileMapper();
                     }else{
-                        path = tbl.fileMapper() + File.separator + tClass.getSimpleName() + ".sqlmap";
+                        path = tbl.fileMapper() + "/" + tClass.getSimpleName() + ".sqlmap";
                     }
 
                 }else{

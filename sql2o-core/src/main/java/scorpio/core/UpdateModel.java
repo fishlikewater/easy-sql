@@ -1,5 +1,6 @@
 package scorpio.core;
 
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -16,20 +17,16 @@ public class UpdateModel{
 
     private QueryModel queryModel = new QueryModel();
 
+    @Setter(AccessLevel.PROTECTED)
     private StringBuffer setSql = new StringBuffer();
 
-    @Setter
     private String table;
-    @Setter
     @Getter
     private boolean useTpl;
-    @Setter
     @Getter
     private String templateName;
-    @Setter
     @Getter
     private String sqlTemplate;
-    @Setter
     @Getter
     private Map<String, Object> argMap;
 
@@ -123,7 +120,7 @@ public class UpdateModel{
      * @param value
      * @return
      */
-    public UpdateModel lte(String column, int value){
+    public UpdateModel lte(String column, Object value){
         queryModel.lte(column, value);
         return this;
     }
@@ -134,7 +131,7 @@ public class UpdateModel{
      * @param value
      * @return
      */
-    public UpdateModel lt(String column, int value){
+    public UpdateModel lt(String column, Object value){
         queryModel.lt(column, value);
         return this;
     }
@@ -145,7 +142,7 @@ public class UpdateModel{
      * @param value
      * @return
      */
-    public UpdateModel gte(String column, int value){
+    public UpdateModel gte(String column, Object value){
         queryModel.gte(column, value);
         return this;
     }
@@ -156,7 +153,7 @@ public class UpdateModel{
      * @param value
      * @return
      */
-    public UpdateModel gt(String column, int value){
+    public UpdateModel gt(String column, Object value){
         queryModel.gt(column, value);
         return this;
     }
@@ -167,7 +164,7 @@ public class UpdateModel{
      * @param value
      * @return
      */
-    public UpdateModel equal(String column, String value){
+    public UpdateModel equal(String column, Object value){
         queryModel.equal(column, value);
         return this;
     }
@@ -178,7 +175,7 @@ public class UpdateModel{
      * @param arr
      * @return
      */
-    public UpdateModel in(String column, String[] arr){
+    public UpdateModel in(String column, Object[] arr){
         queryModel.in(column, arr);
         return this;
     }
@@ -200,6 +197,16 @@ public class UpdateModel{
      */
     public UpdateModel last(String sql){
         queryModel.last(sql);
+        return this;
+    }
+
+    protected UpdateModel setSqlTemplate(String sqlTemplate) {
+        this.sqlTemplate = sqlTemplate;
+        return this;
+    }
+
+    protected UpdateModel setTable(String table) {
+        this.table = table;
         return this;
     }
 }

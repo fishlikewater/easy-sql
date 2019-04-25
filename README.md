@@ -7,6 +7,32 @@
 > sql使用专门的资源文件维护,与代码分离        
 > 使用注解,最大化减少代码量
 
+> 2019-04-23 添加自动代码生成
+
+```java
+public class TestTemplate {
+
+    @Test
+    public void testTpy(){
+        Properties p = new Properties();
+        p.setProperty("jdbc.url", "jdbc:sqlite:scorpio-jdbc.db");
+        p.setProperty("jdbc.username", "");
+        p.setProperty("jdbc.password", "");
+        p.setProperty("jdbc.driver", "org.sqlite.JDBC");
+        p.setProperty("table", "resources");
+        p.setProperty("pack", "com.test");
+        p.setProperty("fileMapper", "/mapper");
+        p.setProperty("basePath", "F:\\IdeaProjects\\easy-sql\\sql2o-core");
+        p.setProperty("templatePath", "F:\\IdeaProjects\\easy-sql\\sql2o-core\\src\\main\\resources");
+        CreateTemplate.init(p);
+        CreateTemplate.createMapper();
+        CreateTemplate.createModel();
+        CreateTemplate.createService();
+    }
+}
+```
+
+
 > 2019-04-19 ActiveRecord 模式
 
 ```java

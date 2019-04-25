@@ -6,8 +6,7 @@ import freemarker.template.Template;
 import lombok.extern.slf4j.Slf4j;
 import scorpio.exception.BaseRuntimeException;
 
-import java.io.StringReader;
-import java.io.StringWriter;
+import java.io.*;
 import java.util.Locale;
 import java.util.Map;
 
@@ -36,6 +35,32 @@ public class ParseTpl {
             return stringWriter.toString().replaceAll("#", "'");
         } catch (Exception e) {
             throw new BaseRuntimeException("Get the exception of the expression content", e);
+        }
+    }
+
+    /**
+     *
+     * @param inFile 模板文件
+     * @param outFile 输出文件
+     * @param templatePath 模板目录
+     * @param paramMap 参数
+     */
+    public static void parseSqlTemplate(String inFile, String outFile, String templatePath, Map paramMap) {
+
+        Configuration cfg = getConfiguration();
+        try {
+            File file = new File(outFile);
+            File parentFile = file.getParentFile();
+            if(!parentFile.exists()){
+                parentFile.mkdirs();
+            }
+            Writer stringWriter=new OutputStreamWriter(new FileOutputStream(file), "gbk");
+            cfg.setDirectoryForTemplateLoading(new File(templatePath));
+            //String disableNumberParserStr = "<#setting number_format=\"#\">";
+            Template t = cfg.getTemplate(inFile);
+            t.process(paramMap, stringWriter);
+        } catch (Exception e) {
+            throw new RuntimeException("Get the exception of the expression content", e);
         }
     }
 

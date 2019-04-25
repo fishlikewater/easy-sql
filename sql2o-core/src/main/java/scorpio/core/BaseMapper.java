@@ -4,8 +4,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.sql2o.Connection;
 import org.sql2o.Query;
 import scorpio.BaseUtils;
+import scorpio.annotation.Table;
+import scorpio.utils.SqlMapUtils;
+import scorpio.utils.StringUtils;
 
 import java.io.Serializable;
+import java.util.Map;
 
 /**
  * @author zhangx
@@ -78,7 +82,7 @@ public abstract class BaseMapper<T extends BaseModel> extends Model<T> implement
      *
      * @param ids
      */
-    private int removeByIds(Object[] ids) {
+    public int removeByIds(Object[] ids) {
         String sql = "";
         UpdateModel updateModel = new UpdateModel().setTable(super.table);
         if(ids instanceof String[]){
@@ -93,6 +97,66 @@ public abstract class BaseMapper<T extends BaseModel> extends Model<T> implement
             return query.executeUpdate().getResult();
         } finally {
             close(conn);
+        }
+    }
+
+    /**
+     *  更新对象
+     * @param t
+     * @return
+     */
+    public int updateById(T t){
+        UpdateModel updateModel = new UpdateModel().setTable(super.table);
+        StringBuffer setSql = new StringBuffer();
+        setSql.append(" ");
+        super.mapping.forEach((k, v)->{
+            if(!idName.equals(k)){
+                setSql.append("k=:").append(v).append(",");
+            }
+        });
+        setSql.deleteCharAt(setSql.length()-1);
+        updateModel.set(setSql.toString());
+        String sql = updateModel.getUpdateSql();
+        log.debug(sql);
+        Connection conn = BaseUtils.getConn(sql);
+        try {
+            Query query = conn.createQuery(sql);
+            return query.bind(t).executeUpdate().getResult();
+        } finally {
+            close(conn);
+        }
+    }
+
+    @Override
+    protected void loadSqlMap(){
+        String path = "";
+        Class<? extends BaseMapper> aClass = this.getClass();
+        Map<String, String> sqlCahceMap = SqlMapUtils.getSqlCahceMap(tClass.getSimpleName());
+        if(sqlCahceMap != null && !BaseUtils.getBuilder().getDev()){
+            this.sqlMap.putAll(sqlCahceMap);
+        }else{
+            Table tbl = aClass.getAnnotation(Table.class);
+            if(tbl != null){
+                String table = tbl.table();
+                if(StringUtils.isNotBlank(table)){
+                    this.table = table;
+                }
+                if(StringUtils.isNotBlank(tbl.fileMapper())){
+                    if(tbl.fileMapper().endsWith(".sqlmap")){
+                        path = tbl.fileMapper();
+                    }else{
+                        path = tbl.fileMapper() + "/" + tClass.getSimpleName() + ".sqlmap";
+                    }
+
+                }else{
+                    path =  tClass.getSimpleName() + ".sqlmap";
+                }
+            }else{
+                path = tClass.getSimpleName() + ".sqlmap";
+            }
+            Map<String, String> sqlMap = SqlMapUtils.getSqlMap(path, tClass);
+            this.sqlMap.putAll(sqlMap);
+            SqlMapUtils.cacheSqlMap(tClass.getSimpleName(), sqlMap);
         }
     }
 }

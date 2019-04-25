@@ -1,6 +1,8 @@
 package scorpio.core;
 
-import lombok.Data;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.experimental.Accessors;
 
 import java.util.*;
@@ -10,26 +12,31 @@ import java.util.*;
  * @date 2019年04月17日 15:50
  * @since 1.6
  **/
-@Data
 @Accessors(chain = true)
 public class QueryModel {
 
+    @Setter(AccessLevel.PROTECTED)
     private Set<String> filedSet = new HashSet<>();
 
     private List<String> selectList = new ArrayList<>();
 
     protected Map<String, String> mappings = null;
 
+    @Getter
     private String lastSql = "";
 
+    @Getter
     private StringBuffer queryStr = new StringBuffer();
 
     private StringBuffer pageStr = new StringBuffer();
 
+    private StringBuffer orderBy = new StringBuffer();
+
     private String table;
 
+    @Getter
     private boolean useTpl;
-
+    @Getter
     private String templateName;
 
     private String sqlTemplate;
@@ -37,12 +44,18 @@ public class QueryModel {
     private Map<String, Object> argMap;
 
     protected String getCountSql() {
+        if (useTpl) {
+            if (sqlTemplate == null) {
+                throw new IllegalArgumentException("sqlTemplate can't be empty");
+            }
+            return ParseTpl.parseSqlTemplate(sqlTemplate, argMap);
+        }
         StringBuffer sql = new StringBuffer();
         sql.append("select count(*) ");
         sql.append("from ");
         sql.append(table).append(" ");
         if (queryStr.length() != 0) {
-            sql.append("where ");
+            sql.append("where");
             return sql.append(queryStr).toString();
         }
         return sql.append(lastSql).toString();
@@ -88,12 +101,13 @@ public class QueryModel {
         if (queryStr.length() == 0) {
             return sql.append(lastSql).append(pageStr).toString();
         } else {
-            sql.append("where ");
-            if (pageStr.length() == 0) {
-                return sql.append(queryStr).append(lastSql).toString();
-            } else {
-                return sql.append(queryStr).append(lastSql).append(pageStr).toString();
+            sql.append("where");
+            sql.append(queryStr).append(lastSql);
+            if(orderBy.length() != 0){
+                orderBy.deleteCharAt(orderBy.length()-1);
+                sql.append(orderBy);
             }
+            return sql.append(pageStr).toString();
         }
 
     }
@@ -113,6 +127,7 @@ public class QueryModel {
      * @return
      */
     public QueryModel like(String column, String value) {
+        queryStr.append(" ");
         if (queryStr.length() != 0) {
             queryStr.append("and ");
         }
@@ -121,8 +136,8 @@ public class QueryModel {
                 .append(" like ")
                 .append("'")
                 .append(value)
-                .append("'")
-                .append(" ");
+                .append("'");
+
 
         return this;
     }
@@ -135,6 +150,7 @@ public class QueryModel {
      * @return
      */
     public QueryModel lte(String column, Object value) {
+        queryStr.append(" ");
         if (queryStr.length() != 0) {
             queryStr.append("and ");
         }
@@ -149,7 +165,6 @@ public class QueryModel {
             queryStr.append(value);
 
         }
-        queryStr.append(" ");
         return this;
     }
 
@@ -161,6 +176,7 @@ public class QueryModel {
      * @return
      */
     public QueryModel lt(String column, Object value) {
+        queryStr.append(" ");
         if (queryStr.length() != 0) {
             queryStr.append("and ");
         }
@@ -175,7 +191,6 @@ public class QueryModel {
             queryStr.append(value);
 
         }
-        queryStr.append(" ");
         return this;
     }
 
@@ -187,6 +202,7 @@ public class QueryModel {
      * @return
      */
     public QueryModel gte(String column, Object value) {
+        queryStr.append(" ");
         if (queryStr.length() != 0) {
             queryStr.append("and ");
         }
@@ -201,7 +217,6 @@ public class QueryModel {
             queryStr.append(value);
 
         }
-        queryStr.append(" ");
         return this;
     }
 
@@ -213,6 +228,7 @@ public class QueryModel {
      * @return
      */
     public QueryModel gt(String column, Object value) {
+        queryStr.append(" ");
         if (queryStr.length() != 0) {
             queryStr.append("and ");
         }
@@ -227,8 +243,6 @@ public class QueryModel {
             queryStr.append(value);
 
         }
-        queryStr.append(" ");
-
         return this;
     }
 
@@ -240,6 +254,7 @@ public class QueryModel {
      * @return
      */
     public QueryModel equal(String column, Object value) {
+        queryStr.append(" ");
         if (queryStr.length() != 0) {
             queryStr.append("and ");
         }
@@ -253,8 +268,6 @@ public class QueryModel {
         } else {
             queryStr.append(value);
         }
-
-        queryStr.append(" ");
         return this;
     }
 
@@ -266,6 +279,7 @@ public class QueryModel {
      * @return
      */
     public QueryModel in(String column, Object[] arr) {
+        queryStr.append(" ");
         if (queryStr.length() != 0) {
             queryStr.append("and ");
         }
@@ -286,12 +300,22 @@ public class QueryModel {
             }
 
         }
-        queryStr.append(" ");
         return this;
     }
 
     public QueryModel page(int bedin, int limit) {
-        pageStr.append("limit ").append(bedin).append(", ").append(limit);
+        pageStr.append(" limit ").append(bedin).append(", ").append(limit);
+        return this;
+    }
+
+    public QueryModel orderBy(String column, boolean isAsc){
+        orderBy.append(" ").append(column);
+        if(isAsc){
+            orderBy.append(" asc");
+        }else{
+            orderBy.append(" desc");
+        }
+        orderBy.append(",");
         return this;
     }
 
@@ -302,12 +326,14 @@ public class QueryModel {
      * @return
      */
     protected QueryModel criteria(String sql) {
+        queryStr.append(" ");
         if (queryStr.length() != 0) {
             queryStr.append("and ");
         }
-        queryStr.append(sql).append(" ");
+        queryStr.append(sql);
         return this;
     }
+
 
     /**
      * 自定义返回字段
@@ -315,7 +341,7 @@ public class QueryModel {
      * @param arg
      * @return
      */
-    public QueryModel elect(String... arg) {
+    public QueryModel select(String... arg) {
         this.selectList = Arrays.asList(arg);
         return this;
     }
@@ -339,6 +365,16 @@ public class QueryModel {
      */
     public QueryModel last(String sql){
         this.lastSql = sql;
+        return this;
+    }
+
+    protected QueryModel setTable(String table) {
+        this.table = table;
+        return this;
+    }
+
+    protected QueryModel setSqlTemplate(String sqlTemplate) {
+        this.sqlTemplate = sqlTemplate;
         return this;
     }
 }
