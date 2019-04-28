@@ -127,9 +127,10 @@ public class QueryModel {
      * @return
      */
     public QueryModel like(String column, String value) {
-        queryStr.append(" ");
         if (queryStr.length() != 0) {
-            queryStr.append("and ");
+            queryStr.append(" and ");
+        }else{
+            queryStr.append(" ");
         }
         queryStr
                 .append(column)
@@ -150,9 +151,10 @@ public class QueryModel {
      * @return
      */
     public QueryModel lte(String column, Object value) {
-        queryStr.append(" ");
         if (queryStr.length() != 0) {
-            queryStr.append("and ");
+            queryStr.append(" and ");
+        }else{
+            queryStr.append(" ");
         }
         queryStr
                 .append(column)
@@ -176,9 +178,10 @@ public class QueryModel {
      * @return
      */
     public QueryModel lt(String column, Object value) {
-        queryStr.append(" ");
         if (queryStr.length() != 0) {
-            queryStr.append("and ");
+            queryStr.append(" and ");
+        }else{
+            queryStr.append(" ");
         }
         queryStr
                 .append(column)
@@ -202,9 +205,10 @@ public class QueryModel {
      * @return
      */
     public QueryModel gte(String column, Object value) {
-        queryStr.append(" ");
         if (queryStr.length() != 0) {
-            queryStr.append("and ");
+            queryStr.append(" and ");
+        }else{
+            queryStr.append(" ");
         }
         queryStr
                 .append(column)
@@ -228,9 +232,10 @@ public class QueryModel {
      * @return
      */
     public QueryModel gt(String column, Object value) {
-        queryStr.append(" ");
         if (queryStr.length() != 0) {
-            queryStr.append("and ");
+            queryStr.append(" and ");
+        }else{
+            queryStr.append(" ");
         }
         queryStr
                 .append(column)
@@ -254,9 +259,10 @@ public class QueryModel {
      * @return
      */
     public QueryModel equal(String column, Object value) {
-        queryStr.append(" ");
         if (queryStr.length() != 0) {
-            queryStr.append("and ");
+            queryStr.append(" and ");
+        }else{
+            queryStr.append(" ");
         }
         queryStr
                 .append(column)
@@ -279,9 +285,10 @@ public class QueryModel {
      * @return
      */
     public QueryModel in(String column, Object[] arr) {
-        queryStr.append(" ");
         if (queryStr.length() != 0) {
-            queryStr.append("and ");
+            queryStr.append(" and ");
+        }else{
+            queryStr.append(" ");
         }
         queryStr
                 .append(column)
@@ -326,9 +333,10 @@ public class QueryModel {
      * @return
      */
     protected QueryModel criteria(String sql) {
-        queryStr.append(" ");
         if (queryStr.length() != 0) {
-            queryStr.append("and ");
+            queryStr.append(" and ");
+        }else{
+            queryStr.append(" ");
         }
         queryStr.append(sql);
         return this;

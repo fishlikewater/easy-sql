@@ -345,7 +345,7 @@ public abstract class Model<T> {
         if(sqlCahceMap != null && !BaseUtils.getBuilder().getDev()){
             this.sqlMap.putAll(sqlCahceMap);
         }else{
-            Table tbl = tClass.getAnnotation(Table.class);
+            Table tbl = this.getClass().getAnnotation(Table.class);
             if(tbl != null){
                 String table = tbl.table();
                 if(StringUtils.isNotBlank(table)){

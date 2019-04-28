@@ -4,12 +4,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.sql2o.Connection;
 import org.sql2o.Query;
 import scorpio.BaseUtils;
-import scorpio.annotation.Table;
-import scorpio.utils.SqlMapUtils;
-import scorpio.utils.StringUtils;
 
 import java.io.Serializable;
-import java.util.Map;
 
 /**
  * @author zhangx
@@ -127,7 +123,7 @@ public abstract class BaseMapper<T extends BaseModel> extends Model<T> implement
         }
     }
 
-    @Override
+    /*@Override
     protected void loadSqlMap(){
         String path = "";
         Class<? extends BaseMapper> aClass = this.getClass();
@@ -158,5 +154,5 @@ public abstract class BaseMapper<T extends BaseModel> extends Model<T> implement
             this.sqlMap.putAll(sqlMap);
             SqlMapUtils.cacheSqlMap(tClass.getSimpleName(), sqlMap);
         }
-    }
+    }*/
 }
