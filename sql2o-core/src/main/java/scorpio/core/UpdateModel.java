@@ -40,7 +40,7 @@ public class UpdateModel{
         }
         StringBuffer deleteSql = new StringBuffer();
         StringBuffer queryStr = queryModel.getQueryStr();
-        deleteSql.append("delete from").append(table);
+        deleteSql.append("delete from ").append(table);
         if(queryStr.length() != 0){
             deleteSql.append(" where").append(queryStr);
         }

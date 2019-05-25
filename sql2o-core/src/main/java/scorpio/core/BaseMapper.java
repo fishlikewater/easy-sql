@@ -81,11 +81,7 @@ public abstract class BaseMapper<T extends BaseModel> extends Model<T> implement
     public int removeByIds(Object[] ids) {
         String sql = "";
         UpdateModel updateModel = new UpdateModel().setTable(super.table);
-        if(ids instanceof String[]){
-            sql = updateModel.in(super.idName, (String[]) ids).getDeleteSql();
-        }else{
-            sql = updateModel.criteria(super.idName + "in(" + ids + ")").getDeleteSql();
-        }
+        sql = updateModel.in(super.idName, ids).getDeleteSql();
         log.debug(sql);
         Connection conn = BaseUtils.getConn(sql);
         try {

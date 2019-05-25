@@ -24,22 +24,24 @@ public class InsertModel {
     private String idName;
 
 
-    public String getSql(){
-        if(ignoreId){
-            mapping.remove(idName);
-        }
+    public String getSql() {
         StringBuffer insertStr = new StringBuffer();
         StringBuffer value = new StringBuffer();
         insertStr
                 .append("insert into ")
                 .append(table)
                 .append("(");
-        mapping.forEach((k, v)->{
-            insertStr.append(k).append(",");
-            value.append(":").append(v).append(",");
-        });
-        insertStr.deleteCharAt(insertStr.length()-1);
-        value.deleteCharAt(value.length()-1);
+        for (Map.Entry<String, String> entry : mapping.entrySet()) {
+            if (entry.getKey().equals(idName)) {
+                if (ignoreId) {
+                    continue;
+                }
+            }
+            insertStr.append(entry.getKey()).append(",");
+            value.append(":").append(entry.getValue()).append(",");
+        }
+        insertStr.deleteCharAt(insertStr.length() - 1);
+        value.deleteCharAt(value.length() - 1);
         value.append(")");
         insertStr.append(") values(").append(value);
         return insertStr.toString();
