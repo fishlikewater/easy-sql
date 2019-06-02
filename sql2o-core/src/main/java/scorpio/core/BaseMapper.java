@@ -4,8 +4,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.sql2o.Connection;
 import org.sql2o.Query;
 import scorpio.BaseUtils;
+import scorpio.exception.BaseRuntimeException;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * @author zhangx
@@ -98,20 +100,30 @@ public abstract class BaseMapper<T extends BaseModel> extends Model<T> implement
      * @return
      */
     public int updateById(T t){
+        return updateById(t, null);
+    }
+
+    /**
+     *  更新对象
+     * @param t
+     * @return
+     */
+    public int updateById(T t, List notSet){
         UpdateModel updateModel = new UpdateModel().setTable(super.table);
         StringBuffer setSql = new StringBuffer();
         setSql.append(" ");
         super.mapping.forEach((k, v)->{
             if(!idName.equals(k)){
-                setSql.append(k).append("=:").append(v).append(",");
+                if(notSet!=null && !notSet.contains(k)){
+                    setSql.append(k).append("=:").append(v).append(",");
+                }
             }
         });
         setSql.deleteCharAt(setSql.length()-1);
         updateModel.set(setSql.toString());
         Object idValue = super.getIdValue(t);
         if(idValue == null){
-            log.error("not get id value");
-            return 0;
+            throw new BaseRuntimeException("not found id value");
         }
         updateModel.equal(idName, idValue);
         String sql = updateModel.getUpdateSql();

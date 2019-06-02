@@ -33,6 +33,8 @@ public abstract class Model<T> {
 
     @Transient
     protected Map<String, String> sqlMap = new HashMap<>(); //存储所有的sqlmap
+    @Transient
+    private String sqlmapPath;
 
     @Transient
     protected Map<String, String> mapping = new HashMap<>();
@@ -73,7 +75,7 @@ public abstract class Model<T> {
         queryModel.setFiledSet(mapping.keySet());
         queryModel.setTable(table);
         if(queryModel.isUseTpl()){
-            queryModel.setSqlTemplate(this.sqlMap.get(queryModel.getTemplateName()));
+            queryModel.setSqlTemplate(getTpySql(queryModel.getTemplateName()));
         }
         String sql = queryModel.getCountSql();
         log.debug(sql);
@@ -269,7 +271,7 @@ public abstract class Model<T> {
 
     private String getQuery(QueryModel queryModel){
         if(queryModel.isUseTpl()){
-            queryModel.setSqlTemplate(this.sqlMap.get(queryModel.getTemplateName()));
+            queryModel.setSqlTemplate(getTpySql(queryModel.getTemplateName()));
         }
         queryModel.setFiledSet(mapping.keySet());
         queryModel.setTable(table);
@@ -280,7 +282,7 @@ public abstract class Model<T> {
 
     private String getUpdateQuery(UpdateModel updateModel){
         if(updateModel.isUseTpl()){
-            updateModel.setSqlTemplate(this.sqlMap.get(updateModel.getTemplateName()));
+            updateModel.setSqlTemplate(getTpySql(updateModel.getTemplateName()));
         }
         updateModel.setTable(table);
         String sql = updateModel.getUpdateSql();
@@ -290,7 +292,7 @@ public abstract class Model<T> {
 
     private String getDeleteQuery(UpdateModel updateModel){
         if(updateModel.isUseTpl()){
-            updateModel.setSqlTemplate(this.sqlMap.get(updateModel.getTemplateName()));
+            updateModel.setSqlTemplate(getTpySql(updateModel.getTemplateName()));
         }
         updateModel.setTable(table);
         String sql = updateModel.getDeleteSql();
@@ -311,6 +313,23 @@ public abstract class Model<T> {
             }
         }
     }
+
+
+    protected String getTpySql(String templateName){
+        String sql = null;
+        if (!BaseUtils.getBuilder().getDev()){
+            sql = this.sqlMap.get(templateName);
+        }else{
+            Map<String, String> sqlMap = SqlMapUtils.getSqlMap(sqlmapPath, tClass);
+            sql = sqlMap.get(templateName);
+        }
+        if(sql == null){
+            throw new BaseRuntimeException("模板sql不存在...");
+        }else {
+            return sql;
+        }
+    }
+
 
     /**
      * 是否初始化
@@ -352,33 +371,28 @@ public abstract class Model<T> {
 
 
     protected void loadSqlMap(){
-        String path = "";
-        Map<String, String> sqlCahceMap = SqlMapUtils.getSqlCahceMap(tClass.getSimpleName());
-        if(sqlCahceMap != null && !BaseUtils.getBuilder().getDev()){
-            this.sqlMap.putAll(sqlCahceMap);
-        }else{
-            Table tbl = this.getClass().getAnnotation(Table.class);
-            if(tbl != null){
-                String table = tbl.table();
-                if(StringUtils.isNotBlank(table)){
-                    this.table = table;
-                }
-                if(StringUtils.isNotBlank(tbl.fileMapper())){
-                    if(tbl.fileMapper().endsWith(".sqlmap")){
-                        path = tbl.fileMapper();
-                    }else{
-                        path = tbl.fileMapper() + "/" + tClass.getSimpleName() + ".sqlmap";
-                    }
-
-                }else{
-                    path =  tClass.getSimpleName() + ".sqlmap";
-                }
-            }else{
-                path = tClass.getSimpleName() + ".sqlmap";
+        Table tbl = this.getClass().getAnnotation(Table.class);
+        if(tbl != null){
+            String table = tbl.table();
+            if(StringUtils.isNotBlank(table)){
+                this.table = table;
             }
-            Map<String, String> sqlMap = SqlMapUtils.getSqlMap(path, tClass);
+            if(StringUtils.isNotBlank(tbl.fileMapper())){
+                if(tbl.fileMapper().endsWith(".sqlmap")){
+                    sqlmapPath = tbl.fileMapper();
+                }else{
+                    sqlmapPath = tbl.fileMapper() + "/" + tClass.getSimpleName() + ".sqlmap";
+                }
+
+            }else{
+                sqlmapPath =  tClass.getSimpleName() + ".sqlmap";
+            }
+        }else{
+            sqlmapPath = tClass.getSimpleName() + ".sqlmap";
+        }
+        Map<String, String> sqlMap = SqlMapUtils.getSqlMap(sqlmapPath, tClass);
+        if(!BaseUtils.getBuilder().getDev()){
             this.sqlMap.putAll(sqlMap);
-            SqlMapUtils.cacheSqlMap(tClass.getSimpleName(), sqlMap);
         }
     }
 
