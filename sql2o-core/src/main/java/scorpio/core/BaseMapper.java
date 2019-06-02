@@ -103,11 +103,17 @@ public abstract class BaseMapper<T extends BaseModel> extends Model<T> implement
         setSql.append(" ");
         super.mapping.forEach((k, v)->{
             if(!idName.equals(k)){
-                setSql.append("k=:").append(v).append(",");
+                setSql.append(k).append("=:").append(v).append(",");
             }
         });
         setSql.deleteCharAt(setSql.length()-1);
         updateModel.set(setSql.toString());
+        Object idValue = super.getIdValue(t);
+        if(idValue == null){
+            log.error("not get id value");
+            return 0;
+        }
+        updateModel.equal(idName, idValue);
         String sql = updateModel.getUpdateSql();
         log.debug(sql);
         Connection conn = BaseUtils.getConn(sql);

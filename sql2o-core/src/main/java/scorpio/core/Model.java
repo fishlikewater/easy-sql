@@ -52,6 +52,18 @@ public abstract class Model<T> {
         assetInit();
     }
 
+    public Object getIdValue(T t){
+        try {
+            Field idFiled = tClass.getDeclaredField(idName);
+            idFiled.setAccessible(true);
+            return idFiled.get(t);
+        }catch (Exception e){
+            log.error("不能获取主键值");
+        }
+        return null;
+
+    }
+
     /**
      *  查询数量
      * @param queryModel

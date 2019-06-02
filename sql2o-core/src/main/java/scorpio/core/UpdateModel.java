@@ -86,7 +86,7 @@ public class UpdateModel{
      * @return
      */
     public UpdateModel set(String sqlSet){
-        setSql.append(setSql).append(",");
+        this.setSql.append(sqlSet).append(",");
         return this;
     }
 
