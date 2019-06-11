@@ -114,7 +114,7 @@ public abstract class BaseMapper<T extends BaseModel> extends Model<T> implement
         setSql.append(" ");
         super.mapping.forEach((k, v)->{
             if(!idName.equals(k)){
-                if(notSet!=null && !notSet.contains(k)){
+                if(notSet == null || !notSet.contains(k)){
                     setSql.append(k).append("=:").append(v).append(",");
                 }
             }
