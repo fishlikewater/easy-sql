@@ -371,6 +371,14 @@ public abstract class Model<T> {
 
 
     protected void loadSqlMap(){
+        /**  ActiveRecord 模式下 对新new的对象 取已经缓存过的sql文件*/
+        if(BaseUtils.getBuilder().getActiveRecord() && !BaseUtils.getBuilder().getDev()){
+            Map<String, String> sqlCahceMap = SqlMapUtils.getSqlCahceMap(tClass.getSimpleName());
+            if(sqlCahceMap != null){
+                this.sqlMap.putAll(sqlCahceMap);
+                return;
+            }
+        }
         Table tbl = this.getClass().getAnnotation(Table.class);
         if(tbl != null){
             String table = tbl.table();
@@ -393,6 +401,9 @@ public abstract class Model<T> {
         Map<String, String> sqlMap = SqlMapUtils.getSqlMap(sqlmapPath, tClass);
         if(!BaseUtils.getBuilder().getDev()){
             this.sqlMap.putAll(sqlMap);
+            if(BaseUtils.getBuilder().getActiveRecord()){//如果开启ActiveRecord 则缓存 则将sql缓存 避免每次new 对象时都加载一次sql文件
+                SqlMapUtils.cacheSqlMap(tClass.getSimpleName(), sqlMap);
+            }
         }
     }
 

@@ -41,7 +41,7 @@ public class SqlMapUtils {
         URL url = t.getResource(path);
         try {
             if (url == null) {
-                log.debug("{}", " no sqlmapping file find! ");
+                log.debug("no sqlmapping file {}", path);
                 return new HashMap<String, String>();
             }
             //如果不在jar中
@@ -60,7 +60,7 @@ public class SqlMapUtils {
             return loadSqlMap(url, in);
         } catch (URISyntaxException e) {
             log.error("{}", "file" + t.getClass().getSimpleName() + ".sqlmap not find");
-            return null;
+            return new HashMap<String, String>();
         }finally {
             lock.unlock();
         }
