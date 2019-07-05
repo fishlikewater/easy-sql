@@ -52,11 +52,9 @@ public class JdbcTest {
 
     @Test
     public void testPort() {
-        TestMapper testDAO = new TestMapper();
-        BaseUtils.atomic(() -> {
-            return testDAO.findById(6);
-        });
-
+        BaseUtils.getBuilder().setActiveRecord(true);
+        TestDTO dto1 = new TestDTO();
+        TestDTO dto2 = new TestDTO();
     }
 
 }
