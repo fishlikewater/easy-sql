@@ -2,6 +2,7 @@ package com;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import scorpio.annotation.Id;
 import scorpio.core.BaseModel;
 
 /**
@@ -17,6 +18,7 @@ import scorpio.core.BaseModel;
 @EqualsAndHashCode(callSuper=true)
 public class BaseModelTest extends BaseModel<BaseModelTest> {
 
+    @Id
     private String id;
 
     private String name;

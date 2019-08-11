@@ -344,6 +344,16 @@ public abstract class Model<T> {
     }
 
     protected void init(){
+        if(!BaseUtils.getBuilder().getDev() && BaseUtils.getBuilder().getActiveRecord()){
+            ModelCache.Model cache = ModelCache.getCache(getClass());
+            if(cache != null){
+                this.sqlMap.putAll(cache.getSqlMap());
+                this.idName = cache.getIdName();
+                this.mapping = cache.getMapping();
+                this.table = cache.getTableName();
+                return;
+            }
+        }
         tClass = (Class<T>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];
         Field[] declaredFields = tClass.getDeclaredFields();
         for (Field declaredField : declaredFields) {
@@ -372,13 +382,13 @@ public abstract class Model<T> {
 
     protected void loadSqlMap(){
         /**  ActiveRecord 模式下 对新new的对象 取已经缓存过的sql文件*/
-        if(BaseUtils.getBuilder().getActiveRecord() && !BaseUtils.getBuilder().getDev()){
+        /*if(BaseUtils.getBuilder().getActiveRecord() && !BaseUtils.getBuilder().getDev()){
             Map<String, String> sqlCahceMap = SqlMapUtils.getSqlCahceMap(tClass.getSimpleName());
             if(sqlCahceMap != null){
                 this.sqlMap.putAll(sqlCahceMap);
                 return;
             }
-        }
+        }*/
         Table tbl = this.getClass().getAnnotation(Table.class);
         if(tbl != null){
             String table = tbl.table();
@@ -399,12 +409,23 @@ public abstract class Model<T> {
             sqlmapPath = tClass.getSimpleName() + ".sqlmap";
         }
         Map<String, String> sqlMap = SqlMapUtils.getSqlMap(sqlmapPath, tClass);
-        if(!BaseUtils.getBuilder().getDev()){
+        if(!BaseUtils.getBuilder().getDev() && BaseUtils.getBuilder().getActiveRecord()){
+            this.sqlMap.putAll(sqlMap);
+            ModelCache.Model model = new ModelCache().new Model();
+            model.setIdName(this.idName);
+            model.setMapping(this.mapping);
+            model.setSqlMap(this.sqlMap);
+            model.setTableName(this.table);
+            ModelCache.addCache(getClass(), model);
+
+        }
+       /* if(!BaseUtils.getBuilder().getDev()){
+
             this.sqlMap.putAll(sqlMap);
             if(BaseUtils.getBuilder().getActiveRecord()){//如果开启ActiveRecord 则缓存 则将sql缓存 避免每次new 对象时都加载一次sql文件
                 SqlMapUtils.cacheSqlMap(tClass.getSimpleName(), sqlMap);
             }
-        }
+        }*/
     }
 
 }
