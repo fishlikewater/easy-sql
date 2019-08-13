@@ -26,7 +26,7 @@ public enum TypeEnum implements IEnum<Integer> {
 
 
     @Override
-    public Integer getSaveFieid() {
+    public Integer getSaveField() {
         return code;
     }
 }

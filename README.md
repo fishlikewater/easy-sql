@@ -7,6 +7,35 @@
 > sql使用专门的资源文件维护,与代码分离        
 > 使用注解,最大化减少代码量
 
+> 2019-08-13 优化枚举，灵活使用
+
+```java
+public enum TypeEnum implements IEnum<Integer> {
+
+    TYPE1(1, "类型一"), TYPE2(2, "类型二");
+
+    private Integer code;
+
+    private String desc;
+
+    TypeEnum(Integer code, String desc){
+        this.code = code;
+        this.desc = desc;
+    }
+
+    public String getDesc(){
+        return desc;
+    }
+
+
+    @Override
+    public Integer getSaveField() {
+        return code;
+    }
+}
+```
+新建的枚举实现IEnum 并实现 getSaveField 方法， 该方法返回枚举在数据库中存放的属性
+
 > 2019-04-23 添加自动代码生成
 
 ```java

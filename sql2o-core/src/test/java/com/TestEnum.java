@@ -26,7 +26,7 @@ public enum TestEnum implements IEnum<String> {
 
 
     @Override
-    public String getSaveFieid() {
+    public String getSaveField() {
         return code;
     }
 

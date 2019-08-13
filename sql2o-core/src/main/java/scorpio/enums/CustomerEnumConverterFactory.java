@@ -26,7 +26,7 @@ public class CustomerEnumConverterFactory implements EnumConverterFactory {
                         }
                     }else {
                         for (Enum item: enumConstants) {
-                            Object saveFieid = ((IEnum) item).getSaveFieid();
+                            Object saveFieid = ((IEnum) item).getSaveField();
                             if(val instanceof String){
                                 if(String.valueOf(saveFieid).equals(val)){
                                     return (E) item;
@@ -47,7 +47,7 @@ public class CustomerEnumConverterFactory implements EnumConverterFactory {
 
             public Object toDatabaseParam(Enum val) {
                 if(val instanceof IEnum){
-                    return ((IEnum)val).getSaveFieid();
+                    return ((IEnum)val).getSaveField();
                 }else {
                     return val.name();
                 }
