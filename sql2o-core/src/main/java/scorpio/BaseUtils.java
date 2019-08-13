@@ -13,6 +13,9 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.RandomUtils;
 import org.sql2o.Connection;
 import org.sql2o.Sql2o;
+import org.sql2o.converters.Convert;
+import org.sql2o.converters.Converter;
+import scorpio.enums.CustomerEnumConverterFactory;
 
 import javax.sql.DataSource;
 import java.sql.SQLException;
@@ -50,8 +53,11 @@ public final class BaseUtils {
         return builder;
     }
 
-
     public static Sql2o sql2o;
+
+    static {
+        Convert.registerEnumConverter(new CustomerEnumConverterFactory());
+    }
 
     public static Sql2o open(String url, String user, String password) {
         sql2o = new Sql2o(url, user, password);
@@ -102,6 +108,16 @@ public final class BaseUtils {
 
         }
     }
+
+    /**
+     * 自定义注册转换器
+     * @param clazz
+     * @param converter
+     */
+    public static void registerConvert(Class clazz, Converter converter){
+        Convert.registerConverter(clazz, converter);
+    }
+
 
     public static void openWrite(DataSource... dataSource){
         int index = 0;
