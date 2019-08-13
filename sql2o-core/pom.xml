@@ -10,7 +10,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>sql2o-core</artifactId>
-
+    <version>2.0-RELEASE</version>
     <name>sql2o-core</name>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
