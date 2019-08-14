@@ -345,12 +345,13 @@ public abstract class Model<T> {
 
     protected void init(){
         if(!BaseUtils.getBuilder().getDev() && BaseUtils.getBuilder().getActiveRecord()){
-            ModelCache.Model cache = ModelCache.getCache(getClass());
+            ModelCache.Model<T> cache = ModelCache.getCache(getClass());
             if(cache != null){
                 this.sqlMap.putAll(cache.getSqlMap());
                 this.idName = cache.getIdName();
                 this.mapping = cache.getMapping();
                 this.table = cache.getTableName();
+                this.tClass = cache.getTClass();
                 return;
             }
         }
@@ -411,11 +412,12 @@ public abstract class Model<T> {
         Map<String, String> sqlMap = SqlMapUtils.getSqlMap(sqlmapPath, tClass);
         if(!BaseUtils.getBuilder().getDev() && BaseUtils.getBuilder().getActiveRecord()){
             this.sqlMap.putAll(sqlMap);
-            ModelCache.Model model = new ModelCache().new Model();
+            ModelCache.Model<T> model = new ModelCache().new Model<T>();
             model.setIdName(this.idName);
             model.setMapping(this.mapping);
             model.setSqlMap(this.sqlMap);
             model.setTableName(this.table);
+            model.setTClass(tClass);
             ModelCache.addCache(getClass(), model);
 
         }

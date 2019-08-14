@@ -29,11 +29,13 @@ public class ModelCache {
     }
 
     @Data
-    class Model{
+    class Model<T>{
 
         private String idName;
 
         private String tableName;
+
+        private Class<T> tClass;
 
         private Map<String, String> mapping = new HashMap<>();
 
