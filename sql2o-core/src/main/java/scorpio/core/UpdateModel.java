@@ -24,7 +24,7 @@ public class UpdateModel{
     @Getter
     private boolean useTpl;
     @Getter
-    private String templateName;
+    private String templateNameOrSql;
     @Getter
     private String sqlTemplate;
     @Getter
@@ -92,13 +92,13 @@ public class UpdateModel{
 
     /**
      *  使用模板
-     * @param templateName 模板key
+     * @param templateNameOrSql 模板key
      * @param argMap 参数
      * @return
      */
-    public UpdateModel tpl(String templateName, Map<String, Object> argMap){
+    public UpdateModel tpl(String templateNameOrSql, Map<String, Object> argMap){
         this.useTpl = true;
-        this.templateName = templateName;
+        this.templateNameOrSql = templateNameOrSql;
         this.argMap = argMap;
         return this;
     }

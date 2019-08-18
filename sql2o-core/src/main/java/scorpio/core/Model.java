@@ -66,6 +66,16 @@ public abstract class Model<T> {
 
     }
 
+/*    public <V> V excutor(String sql, V v){
+        Connection conn = BaseUtils.getConn(sql);
+        try {
+            return (V) conn.createQuery(sql).executeScalar(v.getClass());
+        }finally {
+            close(conn);
+        }
+
+    }*/
+
     /**
      *  查询数量
      * @param queryModel
@@ -75,7 +85,7 @@ public abstract class Model<T> {
         queryModel.setFiledSet(mapping.keySet());
         queryModel.setTable(table);
         if(queryModel.isUseTpl()){
-            queryModel.setSqlTemplate(getTpySql(queryModel.getTemplateName()));
+            queryModel.setSqlTemplate(getTpySql(queryModel.getTemplateNameOrSql()));
         }
         String sql = queryModel.getCountSql();
         log.debug(sql);
@@ -271,7 +281,7 @@ public abstract class Model<T> {
 
     private String getQuery(QueryModel queryModel){
         if(queryModel.isUseTpl()){
-            queryModel.setSqlTemplate(getTpySql(queryModel.getTemplateName()));
+            queryModel.setSqlTemplate(getTpySql(queryModel.getTemplateNameOrSql()));
         }
         queryModel.setFiledSet(mapping.keySet());
         queryModel.setTable(table);
@@ -282,7 +292,7 @@ public abstract class Model<T> {
 
     private String getUpdateQuery(UpdateModel updateModel){
         if(updateModel.isUseTpl()){
-            updateModel.setSqlTemplate(getTpySql(updateModel.getTemplateName()));
+            updateModel.setSqlTemplate(getTpySql(updateModel.getTemplateNameOrSql()));
         }
         updateModel.setTable(table);
         String sql = updateModel.getUpdateSql();
@@ -292,7 +302,7 @@ public abstract class Model<T> {
 
     private String getDeleteQuery(UpdateModel updateModel){
         if(updateModel.isUseTpl()){
-            updateModel.setSqlTemplate(getTpySql(updateModel.getTemplateName()));
+            updateModel.setSqlTemplate(getTpySql(updateModel.getTemplateNameOrSql()));
         }
         updateModel.setTable(table);
         String sql = updateModel.getDeleteSql();
@@ -315,16 +325,17 @@ public abstract class Model<T> {
     }
 
 
-    protected String getTpySql(String templateName){
+    protected String getTpySql(String templateNameOrSql){
         String sql = null;
         if (!BaseUtils.getBuilder().getDev()){
-            sql = this.sqlMap.get(templateName);
+            sql = this.sqlMap.get(templateNameOrSql);
         }else{
             Map<String, String> sqlMap = SqlMapUtils.getSqlMap(sqlmapPath, tClass);
-            sql = sqlMap.get(templateName);
+            sql = sqlMap.get(templateNameOrSql);
         }
         if(sql == null){
-            throw new BaseRuntimeException("模板sql不存在...");
+            return templateNameOrSql;
+            //throw new BaseRuntimeException("模板sql不存在...");
         }else {
             return sql;
         }

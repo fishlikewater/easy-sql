@@ -5,6 +5,7 @@ package com;
 import org.junit.Before;
 import org.junit.Test;
 import scorpio.BaseUtils;
+import scorpio.core.QueryModel;
 
 import java.util.Map;
 
@@ -30,14 +31,16 @@ public class JdbcTest {
     @Test
     public void testModel(){
         ResourcesMapper mapper = new ResourcesMapper();
-        Resources resources = new Resources();
+        Integer object = mapper.object(new QueryModel().tpl("select count(*) from resources", null), Integer.class);
+        System.out.println(object);
+        /* Resources resources = new Resources();
         resources.setSort(3);
         resources.setType(TypeEnum.app);
         resources.setId("45454");
         resources.setResUrl("baaa");
         resources.setParentId(22);
         resources.setName(TestEnum.pc);
-        mapper.save(resources);
+        mapper.save(resources);*/
         //Resources map = mapper.object(new QueryModel());
         //System.out.println(map);
   //     Integer count = mapper.count(new QueryModel());

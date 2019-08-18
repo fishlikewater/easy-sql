@@ -37,7 +37,7 @@ public class QueryModel {
     @Getter
     private boolean useTpl;
     @Getter
-    private String templateName;
+    private String templateNameOrSql;
 
     private String sqlTemplate;
 
@@ -112,9 +112,9 @@ public class QueryModel {
 
     }
 
-    public QueryModel tpl(String templateName, Map<String, Object> argMap) {
+    public QueryModel tpl(String templateNameOrSql, Map<String, Object> argMap) {
         this.useTpl = true;
-        this.templateName = templateName;
+        this.templateNameOrSql = templateNameOrSql;
         this.argMap = argMap;
         return this;
     }
