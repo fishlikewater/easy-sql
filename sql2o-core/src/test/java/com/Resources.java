@@ -44,5 +44,5 @@ public class Resources extends BaseModel<Resources> {
     /**
      * 排序
      */
-    private int sort;
+    private boolean sort;
 }

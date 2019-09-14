@@ -60,21 +60,11 @@ public abstract class Model<T> {
             idFiled.setAccessible(true);
             return idFiled.get(t);
         }catch (Exception e){
-            log.error("不能获取主键值");
+            log.error("不能获取主键值", e);
         }
         return null;
 
     }
-
-/*    public <V> V excutor(String sql, V v){
-        Connection conn = BaseUtils.getConn(sql);
-        try {
-            return (V) conn.createQuery(sql).executeScalar(v.getClass());
-        }finally {
-            close(conn);
-        }
-
-    }*/
 
     /**
      *  查询数量

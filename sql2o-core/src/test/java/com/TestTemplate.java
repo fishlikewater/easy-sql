@@ -1,7 +1,7 @@
 package com;
 
 import org.junit.Test;
-import scorpio.core.CreateTemplate;
+import scorpio.utils.CreateTemplate;
 
 import java.util.Properties;
 
@@ -19,7 +19,7 @@ public class TestTemplate {
         p.setProperty("jdbc.username", "");
         p.setProperty("jdbc.password", "");
         p.setProperty("jdbc.driver", "org.sqlite.JDBC");
-        p.setProperty("table", "resources");
+        p.setProperty("table", "");
         p.setProperty("pack", "com.test");
         p.setProperty("fileMapper", "/mapper");
         p.setProperty("basePath", "F:\\IdeaProjects\\easy-sql\\sql2o-core");

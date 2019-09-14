@@ -24,7 +24,13 @@ public abstract class BaseMapper<T extends BaseModel> extends Model<T> implement
      * @return
      */
     public  Object save(T t) {
-        String sql = new InsertModel().setTable(table).setMapping(mapping).getSql();
+        Object idValue = getIdValue(t);
+        String sql = "";
+        if(idValue != null){
+            sql = new InsertModel().setTable(table).setMapping(mapping).getSql();
+        }else {
+            sql = new InsertModel().setIdName(idName).setIgnoreId(true).setTable(table).setMapping(mapping).getSql();
+        }
         log.debug(sql);
         Connection conn = BaseUtils.getConn(sql);
         try {
@@ -33,7 +39,8 @@ public abstract class BaseMapper<T extends BaseModel> extends Model<T> implement
             close(conn);
         }
     }
-    public Object saveIgnoreId(T t){
+
+   /* public Object saveIgnoreId(T t){
         String sql = new InsertModel().setIdName(idName).setIgnoreId(true).setTable(table).setMapping(mapping).getSql();
         log.debug(sql);
         Connection conn = BaseUtils.getConn(sql);
@@ -42,7 +49,7 @@ public abstract class BaseMapper<T extends BaseModel> extends Model<T> implement
         }finally {
             close(conn);
         }
-    }
+    }*/
 
     @Override
     protected void assetInit() {

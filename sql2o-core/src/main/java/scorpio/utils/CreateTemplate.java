@@ -1,9 +1,9 @@
-package scorpio.core;
+package scorpio.utils;
 
 import org.apache.commons.lang.StringUtils;
 import org.sql2o.Sql2o;
 import scorpio.BaseUtils;
-import scorpio.utils.NameUtils;
+import scorpio.core.ParseTpl;
 
 import java.io.File;
 import java.util.*;
@@ -43,7 +43,7 @@ public class CreateTemplate {
         pack = p.getProperty("pack");
         fileMapper = p.getProperty("fileMapper");
         basePath = p.getProperty("basePath");
-        templatePath = CreateTemplate.class.getResource("/templates").getPath();
+        templatePath = CreateTemplate.class.getResource(p.getProperty("templates")).getPath();
         //templatePath = templatePath.substring(1, templatePath.length());
     }
 
@@ -92,6 +92,9 @@ public class CreateTemplate {
             } else if (StringUtils.startsWith(type, "double") || StringUtils.startsWith(type, "float")) {
                 field = "double " + field;
                 type = "double";
+            }else if(StringUtils.startsWith(type.toLowerCase(), "long")){
+                field = "long " + field;
+                type = "long";
             } else {
                 field = "String " + field;
                 type = "String";
