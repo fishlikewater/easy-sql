@@ -40,7 +40,8 @@ public abstract class BaseMapper<T extends BaseModel> extends Model<T> implement
         }
     }
 
-   /* public Object saveIgnoreId(T t){
+    @Deprecated
+   public Object saveIgnoreId(T t){
         String sql = new InsertModel().setIdName(idName).setIgnoreId(true).setTable(table).setMapping(mapping).getSql();
         log.debug(sql);
         Connection conn = BaseUtils.getConn(sql);
@@ -49,7 +50,7 @@ public abstract class BaseMapper<T extends BaseModel> extends Model<T> implement
         }finally {
             close(conn);
         }
-    }*/
+    }
 
     @Override
     protected void assetInit() {

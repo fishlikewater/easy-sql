@@ -15,7 +15,7 @@
     <properties>
         <java.version>1.8</java.version>
         <spring.boot.version>2.1.7.RELEASE</spring.boot.version>
-        <sql2o.core.version>2.0-RELEASE</sql2o.core.version>
+        <sql2o.core.version>2.1-RELEASE</sql2o.core.version>
         <lombok-version>1.16.18</lombok-version>
     </properties>
 
