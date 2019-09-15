@@ -7,6 +7,20 @@
 > sql使用专门的资源文件维护,与代码分离        
 > 使用注解,最大化减少代码量
 
+> 2019-09-14 代码生成gui
+
+```java
+public class TestTemplate {
+     @Test
+     public void testGui(){
+        CreateCodeUtils.main();
+    
+    }
+}
+```
+![Image text](pic/autoCode.png)
+
+
 > 2019-08-13 优化枚举，灵活使用
 
 ```java
