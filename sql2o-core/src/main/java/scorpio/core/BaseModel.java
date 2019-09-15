@@ -16,9 +16,22 @@ public abstract class BaseModel<T extends BaseModel> extends Model<T> {
 
     /**
      * 保存对象
+     * @param ignoreId 是否忽略id
      * @return
      */
-    public Object save(){
+    public Object save(boolean ignoreId){
+        if(ignoreId){
+            return saveIgnoreId();
+        }else {
+            return saveWithId();
+        }
+    }
+
+    /**
+     * 保存对象
+     * @return
+     */
+    public Object saveWithId(){
         String sql = new InsertModel().setTable(table).setMapping(mapping).getSql();
         log.debug(sql);
         Connection conn = BaseUtils.getConn(sql);
@@ -30,7 +43,7 @@ public abstract class BaseModel<T extends BaseModel> extends Model<T> {
     }
 
     /**
-     * 保存对象
+     * 忽略id字段 保存对象
      * @return
      */
     public Object saveIgnoreId(){

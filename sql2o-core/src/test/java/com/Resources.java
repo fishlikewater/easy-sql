@@ -18,7 +18,7 @@ import scorpio.core.BaseModel;
 @Table(fileMapper = "/Resources.sqlmap")
 public class Resources extends BaseModel<Resources> {
     @Id
-    private String id;
+    private int id;
 
     /**
      * 资源名称

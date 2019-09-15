@@ -19,18 +19,25 @@ import java.util.List;
 public abstract class BaseMapper<T extends BaseModel> extends Model<T> implements Serializable {
 
     /**
+     * 保存对象
+     * @param ignoreId 是否忽略id
+     * @return
+     */
+    public Object save(T t, boolean ignoreId){
+        if(ignoreId){
+            return saveIgnoreId(t);
+        }else {
+            return saveWithId(t);
+        }
+    }
+
+    /**
      * 通过对象创建数据
      * @param t 保存对象
      * @return
      */
-    public  Object save(T t) {
-        Object idValue = getIdValue(t);
-        String sql = "";
-        if(idValue != null){
-            sql = new InsertModel().setTable(table).setMapping(mapping).getSql();
-        }else {
-            sql = new InsertModel().setIdName(idName).setIgnoreId(true).setTable(table).setMapping(mapping).getSql();
-        }
+    public  Object saveWithId(T t) {
+        String sql = new InsertModel().setTable(table).setMapping(mapping).getSql();
         log.debug(sql);
         Connection conn = BaseUtils.getConn(sql);
         try {
@@ -40,7 +47,11 @@ public abstract class BaseMapper<T extends BaseModel> extends Model<T> implement
         }
     }
 
-    @Deprecated
+    /**
+     * 忽略id字段 保存对象
+     * @param t
+     * @return
+     */
    public Object saveIgnoreId(T t){
         String sql = new InsertModel().setIdName(idName).setIgnoreId(true).setTable(table).setMapping(mapping).getSql();
         log.debug(sql);
