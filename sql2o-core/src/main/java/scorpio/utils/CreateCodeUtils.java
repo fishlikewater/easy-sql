@@ -15,12 +15,15 @@ import javafx.stage.WindowEvent;
  **/
 public class CreateCodeUtils extends Application {
 
+    private static Stage stage;
+
     public static void main(String[] args) {
         launch(args);
     }
 
     @Override
     public void start(Stage primaryStage) throws Exception {
+        stage = primaryStage;
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/create_code.fxml"));
         Parent root = fxmlLoader.load();
         Scene scene = new Scene(root, 1024, 720);
@@ -36,5 +39,9 @@ public class CreateCodeUtils extends Application {
         primaryStage.sizeToScene();
         primaryStage.setResizable(false);//禁止缩放
         primaryStage.show();
+    }
+
+    public static Stage getPriStage(){
+        return stage;
     }
 }
