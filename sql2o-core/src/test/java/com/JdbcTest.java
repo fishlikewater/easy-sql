@@ -46,7 +46,7 @@ public class JdbcTest {
         resources.setResUrl("baaa");
         resources.setParentId(22);
         //resources.setName(TestEnum.pc);
-        mapper.save(resources);
+        mapper.save(resources, true);
         //Resources map = mapper.object(new QueryModel());
         //System.out.println(map);
   //     Integer count = mapper.count(new QueryModel());
