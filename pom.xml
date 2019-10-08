@@ -13,6 +13,7 @@
   <modules>
     <module>sql2o-core</module>
     <module>spring-boot-easy-sql2o-stater</module>
+      <module>auto-code</module>
   </modules>
 
   <properties>

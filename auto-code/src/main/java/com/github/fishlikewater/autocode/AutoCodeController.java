@@ -1,12 +1,15 @@
-package scorpio.utils;
+package com.github.fishlikewater.autocode;
 
+import com.fishlikewater.kit.core.StringUtils;
+import com.fishlikewater.kit.core.ioc.annotation.Bean;
+import com.fishlikewater.kit.jfx.ApplicationController;
+import com.fishlikewater.kit.jfx.layer.Layer;
+import com.fishlikewater.kit.jfx.layer.LoadingFrom;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXTextField;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
-import org.apache.commons.lang.StringUtils;
 
 import java.net.URL;
 import java.util.Properties;
@@ -18,7 +21,8 @@ import java.util.concurrent.CompletableFuture;
  * @date 2019年09月14日 11:49
  * @since
  **/
-public class CreateCode implements Initializable {
+@Bean
+public class AutoCodeController implements ApplicationController {
 
     @FXML
     private JFXTextField url;
@@ -56,29 +60,18 @@ public class CreateCode implements Initializable {
     @FXML
     private JFXButton serviceBnt;
 
-    private ProgressFrom progressFrom;
-
     private Properties properties = new Properties();
 
     @FXML
     void createMapper(ActionEvent event) {
-    /*    CompletableFuture.runAsync(() -> {
-            progressFrom.activateProgressBar();
-            try {
-                Thread.sleep(5000);
-                progressFrom.cancelProgressBar();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        });*/
         if (check()) {
             CompletableFuture.runAsync(() -> {
+                LoadingFrom loading = Layer.loading("正在生成...");
                 try {
-                    progressFrom.activateProgressBar();
                     CreateTemplate.init(properties);
                     CreateTemplate.createMapper();
                 } finally {
-                    progressFrom.cancelProgressBar();
+                    loading.close();
                 }
             });
         }
@@ -88,12 +81,12 @@ public class CreateCode implements Initializable {
     void createModel(ActionEvent event) {
         if (check()) {
             CompletableFuture.runAsync(() -> {
+                LoadingFrom loading = Layer.loading("正在生成...");
                 try {
-                    progressFrom.activateProgressBar();
                     CreateTemplate.init(properties);
                     CreateTemplate.createModel();
                 } finally {
-                    progressFrom.cancelProgressBar();
+                    loading.close();
                 }
             });
         }
@@ -103,12 +96,12 @@ public class CreateCode implements Initializable {
     void createService(ActionEvent event) {
         if (check()) {
             CompletableFuture.runAsync(() -> {
+                LoadingFrom loading = Layer.loading("正在生成...");
                 try {
-                    progressFrom.activateProgressBar();
                     CreateTemplate.init(properties);
                     CreateTemplate.createService();
                 } finally {
-                    progressFrom.cancelProgressBar();
+                    loading.close();
                 }
             });
         }
@@ -173,6 +166,6 @@ public class CreateCode implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        progressFrom = new ProgressFrom(CreateCodeUtils.getPriStage());
+
     }
 }

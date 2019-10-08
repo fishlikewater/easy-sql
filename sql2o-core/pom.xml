@@ -89,11 +89,6 @@
             <artifactId>commons-lang</artifactId>
             <version>${commons-lang-version}</version>
         </dependency>
-        <dependency>
-            <groupId>com.jfoenix</groupId>
-            <artifactId>jfoenix</artifactId>
-            <version>8.0.8</version>
-        </dependency>
 
         <!-- <dependency>
              <groupId>mysql</groupId>

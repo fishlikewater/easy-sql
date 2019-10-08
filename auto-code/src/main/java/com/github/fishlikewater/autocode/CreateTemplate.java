@@ -1,9 +1,10 @@
-package scorpio.utils;
+package com.github.fishlikewater.autocode;
 
 import org.apache.commons.lang.StringUtils;
 import org.sql2o.Sql2o;
 import scorpio.BaseUtils;
 import scorpio.core.ParseTpl;
+import scorpio.utils.NameUtils;
 
 import java.io.File;
 import java.util.*;
@@ -77,7 +78,7 @@ public class CreateTemplate {
         Map<String, Object> root = new HashMap<>();
         List list = new ArrayList();
         for (Map m : maps) {
-            String field = isMysql?NameUtils.getCamelName(m.get("field") + ""):NameUtils.getCamelName(m.get("name") + "");
+            String field = isMysql? NameUtils.getCamelName(m.get("field") + ""):NameUtils.getCamelName(m.get("name") + "");
             String type = m.get("type") + "";
             String key = isMysql?m.get("key") + "":m.get("pk") + "";
             if (StringUtils.startsWith(type, "int")) {

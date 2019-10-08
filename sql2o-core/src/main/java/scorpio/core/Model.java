@@ -367,11 +367,11 @@ public abstract class Model<T> {
             Column column = declaredField.getAnnotation(Column.class);
             if(id != null){
                 idName = NameUtils.getUnderlineName(declaredField.getName());
-                if(column != null){
+                if(column != null && StringUtils.isNotBlank(column.value())){
                     idName = column.value();
                 }
             }
-            if(column != null){
+            if(column != null && StringUtils.isNotBlank(column.value())){
                 mapping.put(column.value(), declaredField.getName());
             }else {
                 mapping.put(NameUtils.getUnderlineName(declaredField.getName()), declaredField.getName());

@@ -10,9 +10,9 @@ import java.sql.Types;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Column {
 
-    String value();
+    String value() default "";
 
-    int type() default Types.VARCHAR;
+    int type() default Types.NULL;
 
     int length() default 255;
 

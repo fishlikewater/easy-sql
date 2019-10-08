@@ -12,7 +12,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface IdGenerator {
 
-    Generator  value() default Generator.AUTO;
+    Generator value() default Generator.AUTO;
 
     Class idclass() default IdDefined.class;
 }
