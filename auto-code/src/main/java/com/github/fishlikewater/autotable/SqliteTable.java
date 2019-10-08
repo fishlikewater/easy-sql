@@ -57,6 +57,9 @@ public class SqliteTable implements AutoTable {
                 }else {
                     tableField.setTblKey(NameUtils.getUnderlineName(f.getName()));
                 }
+                if(StringUtils.isNotBlank(column.columnDefined())){
+                    tableField.setSqlType(column.columnDefined());
+                }
                 if(column.type() != Types.NULL){
                     tableField.setSqlType(getSqlType(column.type()));
                 }else {
