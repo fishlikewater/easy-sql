@@ -1,9 +1,12 @@
 package com.github.fishlikewater.autotable;
 
 import com.fishlikewater.kit.core.ScannerKit;
+import org.apache.commons.lang.StringUtils;
 import org.sql2o.Connection;
 import scorpio.BaseUtils;
+import scorpio.annotation.Table;
 import scorpio.core.BaseModel;
+import scorpio.utils.NameUtils;
 
 import javax.sql.DataSource;
 import java.lang.reflect.Field;
@@ -26,12 +29,14 @@ public class TableKit {
         classes.forEach(c -> {
             Field[] fields = c.getDeclaredFields();
             String dataType = BaseUtils.getDataType();
-            AutoTable autoTable = AutoTableFactory.getInstance(dataType);
-            String sql = autoTable.getSql(c);
-            Connection conn = BaseUtils.getConn(sql);
-            try {
+            String tableName = getTableName(c);
+            String queryTable = "select count(*) from sqlite_master where tbl_name='"+tableName+"'";
+            Connection conn = BaseUtils.sql2o.open();
+            Integer count = conn.createQuery(queryTable).executeScalar(int.class);
+            if(count == 0){
+                AutoTable autoTable = AutoTableFactory.getInstance(dataType);
+                String sql = autoTable.getSql(c, tableName);
                 conn.createQuery(sql).executeUpdate();
-            } finally {
                 if (conn != null) {
                     conn.close();
                 }
@@ -39,5 +44,15 @@ public class TableKit {
         });
     }
 
+    private static String getTableName(Class<? extends BaseModel> clazz){
+        Table table = clazz.getAnnotation(Table.class);
+        String tableName;
+        if(table == null && StringUtils.isNotBlank(table.table())){
+            tableName = table.table();
+        }else {
+            tableName = NameUtils.getUnderlineName(clazz.getSimpleName());
+        }
+        return tableName;
+    }
 
 }

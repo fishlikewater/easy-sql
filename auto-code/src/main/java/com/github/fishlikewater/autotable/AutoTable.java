@@ -10,5 +10,5 @@ import scorpio.core.BaseModel;
  **/
 public interface AutoTable {
 
-    public String getSql(Class<? extends BaseModel> clazz);
+    public String getSql(Class<? extends BaseModel> clazz,  String tableName);
 }

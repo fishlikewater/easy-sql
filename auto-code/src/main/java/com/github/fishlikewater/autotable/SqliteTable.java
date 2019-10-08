@@ -4,7 +4,6 @@ import org.apache.commons.lang.StringUtils;
 import scorpio.annotation.Column;
 import scorpio.annotation.Id;
 import scorpio.annotation.IdGenerator;
-import scorpio.annotation.Table;
 import scorpio.core.BaseModel;
 import scorpio.core.Generator;
 import scorpio.enums.IEnum;
@@ -28,14 +27,7 @@ public class SqliteTable implements AutoTable {
 
 
     @Override
-    public String getSql(Class<? extends BaseModel> clazz) {
-        Table table = clazz.getAnnotation(Table.class);
-        String tableName;
-        if(table == null && StringUtils.isNotBlank(table.table())){
-            tableName = table.table();
-        }else {
-            tableName = NameUtils.getUnderlineName(clazz.getSimpleName());
-        }
+    public String getSql(Class<? extends BaseModel> clazz, String tableName) {
         StringBuilder sb = new StringBuilder();
         List<TableField> list = new ArrayList<>();
         Field[] declaredFields = clazz.getDeclaredFields();
