@@ -2,7 +2,6 @@ package com.github.fishlikewater.autotable;
 
 import com.fishlikewater.kit.core.ScannerKit;
 import org.apache.commons.lang.StringUtils;
-import org.sql2o.Connection;
 import scorpio.BaseUtils;
 import scorpio.annotation.Table;
 import scorpio.core.BaseModel;
@@ -30,17 +29,8 @@ public class TableKit {
             Field[] fields = c.getDeclaredFields();
             String dataType = BaseUtils.getDataType();
             String tableName = getTableName(c);
-            String queryTable = "select count(*) from sqlite_master where tbl_name='"+tableName+"'";
-            Connection conn = BaseUtils.sql2o.open();
-            Integer count = conn.createQuery(queryTable).executeScalar(int.class);
-            if(count == 0){
-                AutoTable autoTable = AutoTableFactory.getInstance(dataType);
-                String sql = autoTable.getSql(c, tableName);
-                conn.createQuery(sql).executeUpdate();
-                if (conn != null) {
-                    conn.close();
-                }
-            }
+            AutoTable autoTable = AutoTableFactory.getInstance(dataType);
+            autoTable.excutor(c, tableName);
         });
     }
 

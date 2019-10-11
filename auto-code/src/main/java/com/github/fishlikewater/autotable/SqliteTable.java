@@ -1,6 +1,8 @@
 package com.github.fishlikewater.autotable;
 
 import org.apache.commons.lang.StringUtils;
+import org.sql2o.Connection;
+import scorpio.BaseUtils;
 import scorpio.annotation.Column;
 import scorpio.annotation.Id;
 import scorpio.annotation.IdGenerator;
@@ -95,6 +97,17 @@ public class SqliteTable implements AutoTable {
         });
         sb.append(")");
         return sb.toString();
+    }
+
+    public void excutor(Class<? extends BaseModel> c, String tableName){
+        String queryTable = "select count(*) from sqlite_master where tbl_name='"+tableName+"'";
+        Connection conn = BaseUtils.sql2o.open();
+        Integer count = conn.createQuery(queryTable).executeScalar(int.class);
+        if(count == 0){
+            String sql = getSql(c, tableName);
+            conn.createQuery(sql).executeUpdate();
+            conn.close();
+        }
     }
 
 
