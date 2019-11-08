@@ -37,7 +37,7 @@ public class TableKit {
     private static String getTableName(Class<? extends BaseModel> clazz){
         Table table = clazz.getAnnotation(Table.class);
         String tableName;
-        if(table == null && StringUtils.isNotBlank(table.table())){
+        if(table != null && StringUtils.isNotBlank(table.table())){
             tableName = table.table();
         }else {
             tableName = NameUtils.getUnderlineName(clazz.getSimpleName());

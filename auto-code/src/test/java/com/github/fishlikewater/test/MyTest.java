@@ -11,6 +11,6 @@ import com.github.fishlikewater.autotable.TableKit;
 public class MyTest {
 
     public static void main(String[] args) {
-        TableKit.createTable("com.github.fishlikewater.test");
+        TableKit.createTable(null,"com.github.fishlikewater.test");
     }
 }

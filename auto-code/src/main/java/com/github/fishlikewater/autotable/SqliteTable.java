@@ -1,5 +1,6 @@
 package com.github.fishlikewater.autotable;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.sql2o.Connection;
 import scorpio.BaseUtils;
@@ -25,6 +26,7 @@ import java.util.List;
  * @date 2019年10月08日 14:04
  * @since
  **/
+@Slf4j
 public class SqliteTable implements AutoTable {
 
 
@@ -81,20 +83,26 @@ public class SqliteTable implements AutoTable {
         sb.append("create table ").append(tableName).append(" (");
         sb.append("\n");
         list.forEach(t->{
-            sb.append(t.getTblKey()).append(" ");
+            sb.append(t.getTblKey());
             if(t.getSqlType().equals("VARCHAR")){
-                sb.append(t.getSqlType()).append("(").append(t.getLength()).append(")").append(" ");
+                sb.append(" ").append(t.getSqlType()).append("(").append(t.getLength()).append(")").append("");
             }else {
-                sb.append(t.getSqlType()).append(" ");
+                sb.append(" ").append(t.getSqlType());
             }
             if(!t.isNull()){
-                sb.append("NOT NULL ");
+                sb.append(" NOT NULL ");
             }
             if(t.isPrimaryyKey()){
-                sb.append("CONSTRAINT ").append(tableName).append("_pk ").append("PRIMARY KEY");
+                sb.append(" CONSTRAINT ").append(tableName).append("_pk ").append("PRIMARY KEY");
+                if(t.isIncre()){
+                    sb.append(" autoincrement");
+                }
             }
+            sb.append(",");
             sb.append("\n");
         });
+        int index = sb.lastIndexOf(",");
+        sb.replace(index, index+1, "");
         sb.append(")");
         return sb.toString();
     }
@@ -105,6 +113,7 @@ public class SqliteTable implements AutoTable {
         Integer count = conn.createQuery(queryTable).executeScalar(int.class);
         if(count == 0){
             String sql = getSql(c, tableName);
+            log.info(sql);
             conn.createQuery(sql).executeUpdate();
             conn.close();
         }

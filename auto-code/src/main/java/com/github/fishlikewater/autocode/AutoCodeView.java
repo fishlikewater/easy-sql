@@ -1,6 +1,5 @@
 package com.github.fishlikewater.autocode;
 
-import com.fishlikewater.kit.core.ioc.annotation.Bean;
 import com.fishlikewater.kit.jfx.ApplicationView;
 import com.fishlikewater.kit.jfx.annotation.View;
 
@@ -10,7 +9,6 @@ import com.fishlikewater.kit.jfx.annotation.View;
  * @date 2019年10月08日 13:49
  * @since
  **/
-@Bean
 @View("/auto_code.fxml")
 public class AutoCodeView extends ApplicationView {
 }
