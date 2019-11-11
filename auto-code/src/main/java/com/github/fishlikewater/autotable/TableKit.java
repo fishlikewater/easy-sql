@@ -22,7 +22,7 @@ public class TableKit {
     /**
      * 首先扫描需要创建table 的实体
      */
-    public static void createTable(DataSource dataSource, String... packages) {
+    public static void createTable(DataSource dataSource, String dbName, String... packages) {
         BaseUtils.open(dataSource);
         List<Class<? extends BaseModel>> classes = ScannerKit.scannerPackage(BaseModel.class, packages);
         classes.forEach(c -> {
@@ -30,7 +30,7 @@ public class TableKit {
             String dataType = BaseUtils.getDataType();
             String tableName = getTableName(c);
             AutoTable autoTable = AutoTableFactory.getInstance(dataType);
-            autoTable.excutor(c, tableName);
+            autoTable.excutor(c, tableName, dbName);
         });
     }
 
