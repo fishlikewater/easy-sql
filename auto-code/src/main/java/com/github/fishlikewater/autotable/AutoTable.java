@@ -100,7 +100,7 @@ public interface AutoTable {
             sb.append("\n");
         });
         int index = sb.lastIndexOf(",");
-        sb.replace(index, index, "");
+        sb.replace(index, index+1, "");
         sb.append(")");
         return sb.toString();
     };

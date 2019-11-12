@@ -58,7 +58,7 @@ public class MysqlTable implements AutoTable {
         }else if(LocalDateTime.class.isAssignableFrom(type)){
             return "DATETIME";
         }else if(IEnum.class.isAssignableFrom(type)){
-            Class tClass = (Class) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];
+            Class tClass = (Class) ((ParameterizedType) type.getGenericSuperclass()).getActualTypeArguments()[0];
             if(String.class.isAssignableFrom(tClass)){
                 return "VARCHAR";
             }
